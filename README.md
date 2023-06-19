@@ -1,1 +1,1 @@
-# sphinx-vhs
+# Sphinx-VHS

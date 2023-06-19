@@ -1,0 +1,51 @@
+[project]
+name = "sphinx_vhs"
+version = "1.0.0"
+description = "Sphinx plugin that generates GIFs using charm's VHS"
+authors = [{name = "Tamika Nomara", email = "taminomara@gmail.com"}]
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: MIT License",
+    "Framework :: Sphinx",
+    "Framework :: Sphinx :: Extension",
+    "Topic :: Software Development :: Documentation",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Documentation",
+    "Topic :: Documentation :: Sphinx",
+    "Intended Audience :: Developers",
+    "Typing :: Typed",
+]
+dependencies = [
+    "sphinx>=5.0.2",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest~=7.0",
+]
+doc = [
+    "sphinx-rtd-theme~=1.2.2",
+]
+
+[project.urls]
+Documentation = "https://sphinx-vhs.readthedocs.io/en/stable/"
+Issues = "https://github.com/taminomara/sphinx-vhs/issues"
+Source = "https://github.com/taminomara/sphinx-vhs/"
+Changelog = "https://github.com/taminomara/sphinx-vhs/blob/main/CHANGELOG.md"
+
+[build-system]
+requires = ["flit_core>=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["test"]
