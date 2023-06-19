@@ -155,12 +155,15 @@ def generate_vhs(app, env):
     if not paths_to_generate:
         return
 
-    cmd = shutil.which('vhs')
-    path = os.environ['PATH']
     if not shutil.which('vhs'):
-        bin_dir = download_vhs()
-        cmd = bin_dir / 'vhs'
-        path = str(bin_dir) + ':' + path
+        if sys.platform == 'darwin':
+            logger.error('VHS is not installed on your system.\n'
+                         'Run "brew install vhs", or find additional installation instructions\n'
+                         'at https://github.com/charmbracelet/vhs#installation')
+        else:
+            logger.error('VHS is not installed on your system.\n'
+                         'Find installation instructions at https://github.com/charmbracelet/vhs#installation')
+        raise RuntimeError('vhs is not installed on your system')
 
     if sphinx.util.parallel.parallel_available and app.parallel > 1:
         tasks = sphinx.util.parallel.ParallelTasks(app.parallel)
@@ -182,28 +185,24 @@ def generate_vhs(app, env):
             pass
 
     for chunk in chunks:
-        tasks.add_task(generate_single_vhs, (env.srcdir, cmd, path, chunk), on_chunk_done)
+        tasks.add_task(generate_single_vhs, (env.srcdir, chunk), on_chunk_done)
 
     tasks.join()
 
 
 def generate_single_vhs(arg):
-    cwd, cmd, path, chunk = arg
+    cwd, chunk = arg
     tmp_dir = pathlib.Path(tempfile.mkdtemp())
     try:
         tmp_file = tempfile.mktemp(suffix='.gif', dir=tmp_dir)
         for src_file, dst_file in chunk:
             logger.debug('[vhs] rendering VHS file %s into %s', src_file, tmp_file)
             result = subprocess.run(
-                [cmd, src_file, '-q', '-o', tmp_file],
+                ['vhs', src_file, '-q', '-o', tmp_file],
                 stdin=subprocess.DEVNULL,
                 stderr=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 cwd=cwd,
-                env={
-                    **os.environ,
-                    'PATH': path,
-                }
             )
             if result.returncode:
                 raise RuntimeError(
