@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sphinx plugin for VHS &mdash; Sphinx VHS  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            Sphinx VHS
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Sphinx plugin for VHS</a><ul>
+<li><a class="reference internal" href="#quickstart">Quickstart</a></li>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#but-can-it-run-inside-readthedocs">But can it run inside ReadTheDocs?</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">Sphinx VHS</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Sphinx plugin for VHS</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="sphinx-plugin-for-vhs">
+<h1>Sphinx plugin for VHS<a class="headerlink" href="#sphinx-plugin-for-vhs" title="Permalink to this heading"></a></h1>
+<p>You know <a class="reference external" href="https://github.com/charmbracelet/vhs">VHS</a>, that thing for rendering GIFs from your console?
+Well now there’s a directive for calling it from your RST docs!</p>
+<section id="quickstart">
+<h2>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this heading"></a></h2>
+<p>Install the <code class="docutils literal notranslate"><span class="pre">sphinx-vhs</span></code> package:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>install<span class="w"> </span>sphinx-vhs
+</pre></div>
+</div>
+<p>And add it to your <code class="docutils literal notranslate"><span class="pre">conf.py</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">extensions</span> <span class="o">=</span> <span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="s1">&#39;sphinx_vhs&#39;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Now put some tapes into your source dir,
+and use the <strong>vhs</strong> directive to render them:</p>
+<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="p">..</span> <span class="ow">vhs</span><span class="p">::</span> _tapes/simple.tape
+   <span class="nc">:alt:</span> A gif showing some hello-world text being typed into console.
+   <span class="nc">:scale:</span> 25%
+</pre></div>
+</div>
+<p>This will make you a nice gif:</p>
+<blockquote class="highlights">
+<div><figure class="align-default">
+<a class="reference internal image-reference" href="_images/vhs-68902318b52e794da0a94747a856f8ff6caf7b06102930f6c3aa726ced985a03.gif"><img alt="A gif showing some hello-world text being typed into console." src="_images/vhs-68902318b52e794da0a94747a856f8ff6caf7b06102930f6c3aa726ced985a03.gif" style="width: 300.0px; height: 150.0px;" /></a>
+</figure>
+</div></blockquote>
+<p>Oh, and don’t forget to compile with <code class="docutils literal notranslate"><span class="pre">SPHINXOPTS=&quot;-j</span> <span class="pre">auto&quot;</span></code> to speed things up.
+Sphinx-vhs can process tapes in parallels, but only if you let it.</p>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h2>
+<p>The <strong>vhs</strong> directive has all the same attributes as the <a class="reference external" href="https://docutils.sourceforge.io/docs/ref/rst/directives.html#figure">figure</a>,
+so you can caption it and reference it:</p>
+<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="p">..</span> <span class="nt">_gif-reference:</span>
+
+<span class="p">..</span> <span class="ow">vhs</span><span class="p">::</span> _tapes/simple.tape
+   <span class="nc">:alt:</span> A gif showing some hello-world text being typed into console.
+   <span class="nc">:scale:</span> 25%
+
+   Look, a small <span class="na">:ref:</span><span class="nv">`gif &lt;gif-reference&gt;`</span>! Isn&#39;t it cute?
+</pre></div>
+</div>
+<p>This will make you a <a class="reference internal" href="#gif-reference"><span class="std std-ref">figure</span></a> with a caption:</p>
+<blockquote class="highlights">
+<div><figure class="align-default" id="id1">
+<span id="gif-reference"></span><a class="reference internal image-reference" href="_images/vhs-68902318b52e794da0a94747a856f8ff6caf7b06102930f6c3aa726ced985a03.gif"><img alt="A gif showing some hello-world text being typed into console." src="_images/vhs-68902318b52e794da0a94747a856f8ff6caf7b06102930f6c3aa726ced985a03.gif" style="width: 300.0px; height: 150.0px;" /></a>
+<figcaption>
+<p><span class="caption-text">Look, a small <a class="reference internal" href="#gif-reference"><span class="std std-ref">gif</span></a>! Isn’t it cute?</span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+</div></blockquote>
+<p>Finally, if you’d rather keep tape contents in your RST files,
+there’s the <strong>vhs-inline</strong>. It also works like a <a class="reference external" href="https://docutils.sourceforge.io/docs/ref/rst/directives.html#figure">figure</a>, but, well,
+you won’t be able to caption it:</p>
+<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="p">..</span> <span class="ow">vhs-inline</span><span class="p">::</span>
+   <span class="nc">:scale:</span> 25%
+
+   Type &quot;pwd&quot;
+   Sleep 500ms
+   Enter
+   Sleep 500ms
+   Type &quot;ls -l&quot;
+   Sleep 500ms
+   Enter
+   Sleep 5s
+</pre></div>
+</div>
+<blockquote class="highlights">
+<div><figure class="align-default">
+<a class="reference internal image-reference" href="_images/vhs-7e16d30b8975cf08532e1bfc788735e66c05e40fb7d79f7a0e2e3dea56bf3aac.gif"><img alt="_images/vhs-7e16d30b8975cf08532e1bfc788735e66c05e40fb7d79f7a0e2e3dea56bf3aac.gif" src="_images/vhs-7e16d30b8975cf08532e1bfc788735e66c05e40fb7d79f7a0e2e3dea56bf3aac.gif" style="width: 300.0px; height: 150.0px;" /></a>
+</figure>
+</div></blockquote>
+</section>
+<section id="but-can-it-run-inside-readthedocs">
+<h2>But can it run inside ReadTheDocs?<a class="headerlink" href="#but-can-it-run-inside-readthedocs" title="Permalink to this heading"></a></h2>
+<p>Like all good tools that require non-trivial setup and environment, it can’t.
+I’ve tried adding a workaround where sphinx-vhs downloads VHS binary and all dependencies,
+but ReadTheDocs seems to use an older version of Linux core, which VHS can’t work with.</p>
+<p>So, I’d recommend using GitHub Pages to host your documentation. Check out our workflow
+in <a class="reference external" href="https://github.com/taminomara/sphinx-vhs/blob/main/.github/workflows/docs.yaml">.github/workflows/docs.yaml</a> to see how you could set this up. Sorry for that 😕</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Tamika Nomara.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
