@@ -1,10 +1,14 @@
 Sphinx plugin for VHS
 =====================
 
-You know VHS_, that thing for rendering GIFs from your console?
-Well now there's a directive for calling it from your RST docs!
+Sphinx-VHS is an integration plugin for Sphinx and VHS_,
+a tool by charm_ that renders terminal commands into GIFs.
+It allows referencing ``.tape`` files form your docs,
+and rendering them during sphinx build.
 
 .. _VHS: https://github.com/charmbracelet/vhs
+
+.. _charm: https://charm.sh/
 
 Quickstart
 ----------
@@ -19,9 +23,9 @@ And add it to your ``conf.py``:
 
 .. code-block:: python
 
-   extensions = [..., 'sphinx_vhs', ...]
+   extensions = ["sphinx_vhs", ...]
 
-Now put some tapes into your source dir,
+Now put some tapes into your documentation source dir,
 and use the **vhs** directive to render them:
 
 .. code-block:: rst
@@ -39,7 +43,7 @@ This will make you a nice gif:
       :scale: 25%
 
 Oh, and don't forget to compile with ``SPHINXOPTS="-j auto"`` to speed things up.
-Sphinx-vhs can process tapes in parallel, but only if you let it.
+Sphinx-VHS can process tapes in parallel, but only if you let it.
 
 Usage
 -----
@@ -72,9 +76,9 @@ This will make you a :ref:`figure <gif-reference>` with a caption:
       Look, a small :ref:`gif <gif-reference>`! Isn't it cute?
 
 
-Finally, if you'd rather keep tape contents in your RST files,
-there's the **vhs-inline**. It also works like a figure_, but, well,
-you won't be able to caption it:
+There's also **vhs-inline**, which lets you paste a small tape right
+into your documentation. It also works like a figure_,
+but, well, you won't be able to caption it:
 
 .. code-block:: rst
 
@@ -104,13 +108,33 @@ you won't be able to caption it:
       Enter
       Sleep 5s
 
+Settings
+--------
+
+Sphinx-VHS adds the following settings to ``conf.py``:
+
+- ``vhs_min_version``: minimum VHS version required to render types.
+
+  Default: ``"0.5.0"``.
+
+- ``vhs_cwd``: working dir for VHS runs.
+
+  Default: documentation source dir.
+
+- ``vhs_auto_install``: whether to install VHS in case it is missing or outdated.
+
+  Default: ``True``.
+
+- ``vhs_auto_install_location``: path where VHS binaries should be installed to.
+
+  Default: see :func:`vhs.default_cache_path`.
+
 But can it run inside ReadTheDocs?
 ----------------------------------
 
-Like all good tools that require non-trivial setup and environment, it can't.
-ReadTheDocs seems to use an older version of Linux core, which VHS can't work with.
+Nope! ReadTheDocs seems to use an older version of Linux core, which VHS can't work with.
 
 So, I'd recommend using GitHub Pages to host your documentation. Check out our workflow
-in `.github/workflows/docs.yaml`_ to see how you could set this up. Sorry for that 😕
+in `.github/workflows/ci.yaml`_ to see how you could set this up. Sorry for that 😕
 
-.. _.github/workflows/docs.yaml: https://github.com/taminomara/sphinx-vhs/blob/main/.github/workflows/docs.yaml
+.. _.github/workflows/ci.yaml: https://github.com/taminomara/sphinx-vhs/blob/main/.github/workflows/ci.yaml
