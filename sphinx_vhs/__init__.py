@@ -15,13 +15,11 @@ import sphinx.util.docutils
 import sphinx.util.osutil
 import sphinx.util.parallel
 import sphinx.writers
+import vhs
 from docutils.parsers.rst.directives.images import Figure
 from sphinx.util import logging
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import SphinxDirective
-
-import vhs
-
 
 try:
     from sphinx.util.display import status_iterator  # type: ignore
