@@ -44,11 +44,11 @@ class VhsLoggingAdapter(logging.SphinxLoggerAdapter):
         return f"[vhs] {msg}", kwargs
 
 
-vhs._logger = logger = VhsLoggingAdapter(logging.getLogger('sphinx-vhs'))  # type: ignore
+vhs._logger = logger = VhsLoggingAdapter(logging.getLogger("sphinx-vhs"))  # type: ignore
 
 
 def _get_paths(env: sphinx.environment.BuildEnvironment):
-    dest_dir = pathlib.Path(env.app.builder.doctreedir, 'vhs_tapes_cache')
+    dest_dir = pathlib.Path(env.app.builder.doctreedir, "vhs_tapes_cache")
     dest_dir.mkdir(parents=True, exist_ok=True)
 
     img_dir = pathlib.Path(env.app.builder.outdir, env.app.builder.imagedir)
@@ -59,48 +59,60 @@ def _get_paths(env: sphinx.environment.BuildEnvironment):
 
 def _get_used_files(env: sphinx.environment.BuildEnvironment) -> _t.Dict[str, dict]:
     res = collections.defaultdict(list)
-    for f in getattr(env, 'vhs_used_files', []):
-        res[f['filename']].append(f)
+    for f in getattr(env, "vhs_used_files", []):
+        res[f["filename"]].append(f)
     return dict(res)
 
 
 class VhsDirective(SphinxDirective, Figure):
     def run(self):
-        figwidth = self.options.get('figwidth')
-        if figwidth == 'image':
-            logger.warning('`figwidth=image` option is not supported for directive %s', self.name)
+        figwidth = self.options.get("figwidth")
+        if figwidth == "image":
+            logger.warning(
+                "`figwidth=image` option is not supported for directive %s", self.name
+            )
 
         lines = self._get_tape_contents()
 
         # remove all comments
-        tape = '\n'.join([
-            prefix for line in lines if (prefix := re.match(r'^((["\'`]).*?\2|[^"\'`#])*', line).group(0).rstrip())
-        ])
+        tape = "\n".join(
+            [
+                prefix
+                for line in lines
+                if (
+                    prefix := re.match(r'^((["\'`]).*?\2|[^"\'`#])*', line)
+                    .group(0)
+                    .rstrip()
+                )
+            ]
+        )
 
-        filename = 'vhs-' + hashlib.sha256(tape.encode()).hexdigest()
-        dest_dir = pathlib.Path(self.env.app.builder.doctreedir, 'vhs_tapes_cache')
+        filename = "vhs-" + hashlib.sha256(tape.encode()).hexdigest()
+        dest_dir = pathlib.Path(self.env.app.builder.doctreedir, "vhs_tapes_cache")
         dest_dir.mkdir(parents=True, exist_ok=True)
-        dest_tape = dest_dir / (filename + '.tape')
-        dest_file = str(dest_dir / (filename + '.gif'))
+        dest_tape = dest_dir / (filename + ".tape")
+        dest_file = str(dest_dir / (filename + ".gif"))
 
-        with dest_tape.open('w') as file:
+        with dest_tape.open("w") as file:
             file.write(tape)
 
-        if not hasattr(self.env, 'vhs_used_files'):
-            setattr(self.env, 'vhs_used_files', [])
-        getattr(self.env, 'vhs_used_files').append({
-            'docname': self.env.docname,
-            'lineno': self.lineno,
-            'filename': filename,
-        })
+        if not hasattr(self.env, "vhs_used_files"):
+            setattr(self.env, "vhs_used_files", [])
+        getattr(self.env, "vhs_used_files").append(
+            {
+                "docname": self.env.docname,
+                "lineno": self.lineno,
+                "filename": filename,
+            }
+        )
 
         self.arguments = [dest_file]
 
-        figure_node, = super().run()
+        (figure_node,) = super().run()
 
         for orig_node in figure_node.findall(docutils.nodes.image):
-            orig_node['uri'] = dest_file
-            orig_node['candidates'] = {'*': dest_file}
+            orig_node["uri"] = dest_file
+            orig_node["candidates"] = {"*": dest_file}
             vhs_node = VhsNode(orig_node=orig_node)
             orig_node.replace_self(vhs_node)
 
@@ -111,10 +123,10 @@ class VhsDirective(SphinxDirective, Figure):
         path = pathlib.Path(self.env.srcdir, self.arguments[0])
         path = path.resolve()
         if not path.exists():
-            logger.error('Path %s does not exist', path)
+            logger.error("Path %s does not exist", path)
             return []
         elif not path.is_file():
-            logger.error('Path %s is not a file', path)
+            logger.error("Path %s is not a file", path)
             return []
         else:
             try:
@@ -177,39 +189,58 @@ class ProgressReporter(vhs.DefaultProgressReporter):
 # This runs on `env-before-read-docs` to purge all cached gifs and tapes
 # if fresh env (-E) was used. This also runs on `env-updated` to purge
 # cached gifs that were used in the previous build, but aren't used now.
-def clear_unused_files(app: sphinx.application.Sphinx, env: sphinx.environment.BuildEnvironment, docnames: _t.List[str]):
+def clear_unused_files(
+    app: sphinx.application.Sphinx,
+    env: sphinx.environment.BuildEnvironment,
+    docnames: _t.List[str],
+):
     dest_dir, img_dir = _get_paths(env)
     used_files = _get_used_files(env)
 
-    logger.debug('[vhs] cleaning up old VHS files...')
+    logger.debug("[vhs] cleaning up old VHS files...")
     for file in itertools.chain(
-        dest_dir.glob('vhs-*.gif'),
-        dest_dir.glob('vhs-*.tape'),
-        img_dir.glob('vhs-*.gif'),
+        dest_dir.glob("vhs-*.gif"),
+        dest_dir.glob("vhs-*.tape"),
+        img_dir.glob("vhs-*.gif"),
     ):
         name = file.name[: -len(file.suffix)]
         if name not in used_files:
-            logger.debug('[vhs] removing %s', file)
+            logger.debug("[vhs] removing %s", file)
             os.remove(file)
 
 
 # Merge `vhs_used_files` from one environment into another.
-def merge_used_files(app: sphinx.application.Sphinx, env: sphinx.environment.BuildEnvironment, docnames: _t.List[str], other: sphinx.environment.BuildEnvironment):
-    if not hasattr(env, 'vhs_used_files'):
-        setattr(env, 'vhs_used_files', [])
-    getattr(env, 'vhs_used_files').extend(getattr(other, 'vhs_used_files', []))
+def merge_used_files(
+    app: sphinx.application.Sphinx,
+    env: sphinx.environment.BuildEnvironment,
+    docnames: _t.List[str],
+    other: sphinx.environment.BuildEnvironment,
+):
+    if not hasattr(env, "vhs_used_files"):
+        setattr(env, "vhs_used_files", [])
+    getattr(env, "vhs_used_files").extend(getattr(other, "vhs_used_files", []))
 
 
 # Drop `vhs_used_files` entries from an env. This runs when sphinx is going
 # to re-read a source file.
-def purge_used_files(app: sphinx.application.Sphinx, env: sphinx.environment.BuildEnvironment, docname: str):
-    if hasattr(env, 'vhs_used_files'):
-        vhs_used_files = [used_files for used_files in getattr(env, 'vhs_used_files') if used_files['docname'] != docname]
-        setattr(env, 'vhs_used_files', vhs_used_files)
+def purge_used_files(
+    app: sphinx.application.Sphinx,
+    env: sphinx.environment.BuildEnvironment,
+    docname: str,
+):
+    if hasattr(env, "vhs_used_files"):
+        vhs_used_files = [
+            used_files
+            for used_files in getattr(env, "vhs_used_files")
+            if used_files["docname"] != docname
+        ]
+        setattr(env, "vhs_used_files", vhs_used_files)
 
 
 # Actually runs VHS
-def generate_vhs(app: sphinx.application.Sphinx, env: sphinx.environment.BuildEnvironment):
+def generate_vhs(
+    app: sphinx.application.Sphinx, env: sphinx.environment.BuildEnvironment
+):
     # Another clean-up run after re-reading docs and updating a list of used gifs.
     clear_unused_files(app, env, [])
 
@@ -217,25 +248,32 @@ def generate_vhs(app: sphinx.application.Sphinx, env: sphinx.environment.BuildEn
     used_files = _get_used_files(env)
 
     paths_to_generate = [
-        (dest_dir / (file + '.tape'), dest_dir / (file + '.gif'), env.doc2path(data[0]['docname']), data[0]['lineno'])
+        (
+            dest_dir / (file + ".tape"),
+            dest_dir / (file + ".gif"),
+            env.doc2path(data[0]["docname"]),
+            data[0]["lineno"],
+        )
         for file, data in used_files.items()
-        if not (dest_dir / (file + '.gif')).exists()
+        if not (dest_dir / (file + ".gif")).exists()
     ]
 
     if not paths_to_generate:
-        logger.debug('[vhs] no outdated tapes')
+        logger.debug("[vhs] no outdated tapes")
         return
 
     try:
         runner = vhs.resolve(
-            min_version=app.config['vhs_min_version'],
+            min_version=app.config["vhs_min_version"],
             cwd=env.srcdir,
             reporter=ProgressReporter(app.verbosity),
         )
     except vhs.VhsError as e:
         raise sphinx.errors.ExtensionError(str(e)) from e
 
-    tasks: _t.Union[sphinx.util.parallel.ParallelTasks, sphinx.util.parallel.SerialTasks]
+    tasks: _t.Union[
+        sphinx.util.parallel.ParallelTasks, sphinx.util.parallel.SerialTasks
+    ]
     if sphinx.util.parallel.parallel_available and app.parallel > 1:
         tasks = sphinx.util.parallel.ParallelTasks(app.parallel)
     else:
@@ -243,10 +281,18 @@ def generate_vhs(app: sphinx.application.Sphinx, env: sphinx.environment.BuildEn
 
     chunks = sphinx.util.parallel.make_chunks(paths_to_generate, app.parallel)  # type: ignore
 
-    logger.debug('[vhs] rendering VHS tapes: %s files, parallel=%s', len(paths_to_generate), app.parallel)
+    logger.debug(
+        "[vhs] rendering VHS tapes: %s files, parallel=%s",
+        len(paths_to_generate),
+        app.parallel,
+    )
 
     progress = status_iterator(
-        range(len(chunks)), 'rendering VHS tapes... ', 'teal', len(chunks), app.verbosity
+        range(len(chunks)),
+        "rendering VHS tapes... ",
+        "teal",
+        len(chunks),
+        app.verbosity,
     )
 
     next(progress)
@@ -266,36 +312,38 @@ def generate_vhs(app: sphinx.application.Sphinx, env: sphinx.environment.BuildEn
 def generate_single_vhs(arg):
     runner, chunk = arg
     for src_file, dst_file, docname, lineno in chunk:
-        logger.debug('[vhs] rendering %s', src_file)
+        logger.debug("[vhs] rendering %s", src_file)
         try:
             runner.run(src_file, dst_file)
         except vhs.VhsError as e:
             raise sphinx.errors.ExtensionError(f"at {docname}:{lineno}:\n{e}") from e
 
 
-def process_vhs_nodes(app: sphinx.application.Sphinx, doctree: docutils.nodes.Node, fromdocname: str):
+def process_vhs_nodes(
+    app: sphinx.application.Sphinx, doctree: docutils.nodes.Node, fromdocname: str
+):
     env = app.builder.env
 
     for vhs_node in doctree.findall(VhsNode):
-        orig_node = vhs_node['orig_node']
-        env.images.add_file(fromdocname, orig_node['uri'])
+        orig_node = vhs_node["orig_node"]
+        env.images.add_file(fromdocname, orig_node["uri"])
         vhs_node.replace_self(orig_node)
 
 
 def setup(app: sphinx.application.Sphinx):
-    app.add_config_value('vhs_min_version', '0.5.0', rebuild=False)
+    app.add_config_value("vhs_min_version", "0.5.0", rebuild=False)
 
-    app.add_directive('vhs', VhsDirective)
-    app.add_directive('vhs-inline', InlineVhsDirective)
+    app.add_directive("vhs", VhsDirective)
+    app.add_directive("vhs-inline", InlineVhsDirective)
 
-    app.connect('env-before-read-docs', clear_unused_files)
-    app.connect('env-merge-info', merge_used_files)
-    app.connect('env-purge-doc', purge_used_files)
-    app.connect('env-updated', generate_vhs)
-    app.connect('doctree-resolved', process_vhs_nodes)
+    app.connect("env-before-read-docs", clear_unused_files)
+    app.connect("env-merge-info", merge_used_files)
+    app.connect("env-purge-doc", purge_used_files)
+    app.connect("env-updated", generate_vhs)
+    app.connect("doctree-resolved", process_vhs_nodes)
 
     return {
-        'version': __version__,
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": __version__,
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }
