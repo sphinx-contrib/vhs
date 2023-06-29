@@ -45,6 +45,7 @@
 <li><a class="reference internal" href="#">Sphinx plugin for VHS</a><ul>
 <li><a class="reference internal" href="#quickstart">Quickstart</a></li>
 <li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#settings">Settings</a></li>
 <li><a class="reference internal" href="#but-can-it-run-inside-readthedocs">But can it run inside ReadTheDocs?</a></li>
 </ul>
 </li>
@@ -76,8 +77,10 @@
              
   <section id="sphinx-plugin-for-vhs">
 <h1>Sphinx plugin for VHS<a class="headerlink" href="#sphinx-plugin-for-vhs" title="Permalink to this heading"></a></h1>
-<p>You know <a class="reference external" href="https://github.com/charmbracelet/vhs">VHS</a>, that thing for rendering GIFs from your console?
-Well now there’s a directive for calling it from your RST docs!</p>
+<p>Sphinx-VHS is an integration plugin for Sphinx and <a class="reference external" href="https://github.com/charmbracelet/vhs">VHS</a>,
+a tool by <a class="reference external" href="https://charm.sh/">charm</a> that renders terminal commands into GIFs.
+It allows referencing <code class="docutils literal notranslate"><span class="pre">.tape</span></code> files form your docs,
+and rendering them during sphinx build.</p>
 <section id="quickstart">
 <h2>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this heading"></a></h2>
 <p>Install the <code class="docutils literal notranslate"><span class="pre">sphinx-vhs</span></code> package:</p>
@@ -85,10 +88,10 @@ Well now there’s a directive for calling it from your RST docs!</p>
 </pre></div>
 </div>
 <p>And add it to your <code class="docutils literal notranslate"><span class="pre">conf.py</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">extensions</span> <span class="o">=</span> <span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="s1">&#39;sphinx_vhs&#39;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">extensions</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;sphinx_vhs&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>Now put some tapes into your source dir,
+<p>Now put some tapes into your documentation source dir,
 and use the <strong>vhs</strong> directive to render them:</p>
 <div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="p">..</span> <span class="ow">vhs</span><span class="p">::</span> _tapes/simple.tape
    <span class="nc">:alt:</span> A gif showing some hello-world text being typed into console.
@@ -102,7 +105,7 @@ and use the <strong>vhs</strong> directive to render them:</p>
 </figure>
 </div></blockquote>
 <p>Oh, and don’t forget to compile with <code class="docutils literal notranslate"><span class="pre">SPHINXOPTS=&quot;-j</span> <span class="pre">auto&quot;</span></code> to speed things up.
-Sphinx-vhs can process tapes in parallels, but only if you let it.</p>
+Sphinx-VHS can process tapes in parallel, but only if you let it.</p>
 </section>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h2>
@@ -126,9 +129,9 @@ so you can caption it and reference it:</p>
 </figcaption>
 </figure>
 </div></blockquote>
-<p>Finally, if you’d rather keep tape contents in your RST files,
-there’s the <strong>vhs-inline</strong>. It also works like a <a class="reference external" href="https://docutils.sourceforge.io/docs/ref/rst/directives.html#figure">figure</a>, but, well,
-you won’t be able to caption it:</p>
+<p>There’s also <strong>vhs-inline</strong>, which lets you paste a small tape right
+into your documentation. It also works like a <a class="reference external" href="https://docutils.sourceforge.io/docs/ref/rst/directives.html#figure">figure</a>,
+but, well, you won’t be able to caption it:</p>
 <div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="p">..</span> <span class="ow">vhs-inline</span><span class="p">::</span>
    <span class="nc">:scale:</span> 25%
 
@@ -148,13 +151,29 @@ you won’t be able to caption it:</p>
 </figure>
 </div></blockquote>
 </section>
+<section id="settings">
+<h2>Settings<a class="headerlink" href="#settings" title="Permalink to this heading"></a></h2>
+<p>Sphinx-VHS adds the following settings to <code class="docutils literal notranslate"><span class="pre">conf.py</span></code>:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">vhs_min_version</span></code>: minimum VHS version required to render types.</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">&quot;0.5.0&quot;</span></code>.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vhs_cwd</span></code>: working dir for VHS runs.</p>
+<p>Default: documentation source dir.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vhs_auto_install</span></code>: whether to install VHS in case it is missing or outdated.</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vhs_auto_install_location</span></code>: path where VHS binaries should be installed to.</p>
+<p>Default: see <a class="reference external" href="https://taminomara.github.io/python-vhs/index.html#vhs.default_cache_path" title="(in Python VHS v0.0.3)"><code class="xref py py-func docutils literal notranslate"><span class="pre">vhs.default_cache_path()</span></code></a>.</p>
+</li>
+</ul>
+</section>
 <section id="but-can-it-run-inside-readthedocs">
 <h2>But can it run inside ReadTheDocs?<a class="headerlink" href="#but-can-it-run-inside-readthedocs" title="Permalink to this heading"></a></h2>
-<p>Like all good tools that require non-trivial setup and environment, it can’t.
-I’ve tried adding a workaround where sphinx-vhs downloads VHS binary and all dependencies,
-but ReadTheDocs seems to use an older version of Linux core, which VHS can’t work with.</p>
+<p>Nope! ReadTheDocs seems to use an older version of Linux core, which VHS can’t work with.</p>
 <p>So, I’d recommend using GitHub Pages to host your documentation. Check out our workflow
-in <a class="reference external" href="https://github.com/taminomara/sphinx-vhs/blob/main/.github/workflows/docs.yaml">.github/workflows/docs.yaml</a> to see how you could set this up. Sorry for that 😕</p>
+in <a class="reference external" href="https://github.com/taminomara/sphinx-vhs/blob/main/.github/workflows/ci.yaml">.github/workflows/ci.yaml</a> to see how you could set this up. Sorry for that 😕</p>
 </section>
 </section>
 
