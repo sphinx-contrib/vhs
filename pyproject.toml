@@ -1,8 +1,8 @@
 [project]
 name = "sphinx_vhs"
-version = "1.0.0"
-description = "Sphinx plugin that generates GIFs using charm's VHS"
 authors = [{name = "Tamika Nomara", email = "taminomara@gmail.com"}]
+description = "Sphinx plugin that generates GIFs using charm's VHS"
+dynamic = ["version"]
 readme = "README.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.8"
@@ -26,26 +26,33 @@ classifiers = [
 ]
 dependencies = [
     "sphinx>=5.0.2",
+    "vhs~=0.0.1",
 ]
 
 [project.optional-dependencies]
 test = [
     "pytest~=7.0",
+    "pytest-mypy~=0.10.3",
+    "black~=23.0",
+    "types-requests",
 ]
 doc = [
     "sphinx-rtd-theme~=1.2.2",
 ]
 
 [project.urls]
-Documentation = "https://sphinx-vhs.readthedocs.io/en/stable/"
-Issues = "https://github.com/taminomara/sphinx-vhs/issues"
+Documentation = "https://taminomara.github.io/sphinx-vhs/"
+Issues = "https://github.com/taminomara/sphinx-vhs/issues/"
 Source = "https://github.com/taminomara/sphinx-vhs/"
 Changelog = "https://github.com/taminomara/sphinx-vhs/blob/main/CHANGELOG.md"
 
 [build-system]
-requires = ["flit_core>=3.2,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2", "wheel>=0.40"]
+
+[tool.setuptools_scm]
+write_to = "sphinx_vhs/_version.py"
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-testpaths = ["test"]
+testpaths = ["sphinx_vhs", "test"]
+addopts = ["--mypy"]
