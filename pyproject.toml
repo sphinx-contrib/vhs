@@ -1,7 +1,7 @@
 [project]
-name = "sphinx_vhs"
+name = "sphinx-vhs"
 authors = [{name = "Tamika Nomara", email = "taminomara@gmail.com"}]
-description = "Sphinx plugin that generates GIFs using charm's VHS"
+description = "Sphinx plugin that generates terminal GIFs using charm's VHS"
 dynamic = ["version"]
 readme = "README.md"
 license = {file = "LICENSE"}
@@ -22,7 +22,6 @@ classifiers = [
     "Topic :: Documentation",
     "Topic :: Documentation :: Sphinx",
     "Intended Audience :: Developers",
-    "Typing :: Typed",
 ]
 dependencies = [
     "sphinx>=5.0.2",
