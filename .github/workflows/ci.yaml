@@ -52,6 +52,12 @@ jobs:
         run: |
           black --check .
           isort --check --diff .
+      - run: |
+          echo 'Type "true"' > _empty_vhs_tape.tape
+      - name: Install VHS
+        uses: charmbracelet/vhs-action@v1
+        with:
+          path: _empty_vhs_tape.tape
       - name: Test package
         run: pytest -vv --showlocals --tb=short --color=yes --junit-xml=test-results.xml
 

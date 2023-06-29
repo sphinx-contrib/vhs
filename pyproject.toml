@@ -38,6 +38,7 @@ test = [
     "html5lib~=1.1",
     "types-requests",
     "types-docutils",
+    "types-html5lib",
 ]
 doc = [
     "sphinx-rtd-theme~=1.2.2",
