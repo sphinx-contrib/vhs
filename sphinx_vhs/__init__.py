@@ -263,8 +263,10 @@ def generate_vhs(
     try:
         runner = vhs.resolve(
             min_version=app.config["vhs_min_version"],
-            cwd=env.srcdir,
+            cwd=app.config["vhs_cwd"] or env.srcdir,
             reporter=ProgressReporter(app.verbosity),
+            install=app.config["vhs_auto_install"],
+            cache_path=app.config["vhs_auto_install_location"],
         )
     except vhs.VhsError as e:
         raise sphinx.errors.ExtensionError(str(e)) from e
@@ -277,7 +279,10 @@ def generate_vhs(
     else:
         tasks = sphinx.util.parallel.SerialTasks()
 
-    chunks = sphinx.util.parallel.make_chunks(paths_to_generate, app.parallel)  # type: ignore
+    if app.parallel > 1:
+        chunks = sphinx.util.parallel.make_chunks(paths_to_generate, app.parallel)  # type: ignore
+    else:
+        chunks = [paths_to_generate]
 
     logger.debug(
         "rendering VHS tapes: %s files, parallel=%s",
@@ -302,12 +307,12 @@ def generate_vhs(
             pass
 
     for chunk in chunks:
-        tasks.add_task(generate_single_vhs, (runner, chunk), on_chunk_done)
+        tasks.add_task(generate_vhs_worker, (runner, chunk), on_chunk_done)
 
     tasks.join()
 
 
-def generate_single_vhs(arg):
+def generate_vhs_worker(arg):
     runner, chunk = arg
     for src_file, dst_file, docname, lineno in chunk:
         logger.debug("rendering %s", src_file)
@@ -330,6 +335,9 @@ def process_vhs_nodes(
 
 def setup(app: sphinx.application.Sphinx):
     app.add_config_value("vhs_min_version", "0.5.0", rebuild=False)
+    app.add_config_value("vhs_auto_install_location", None, rebuild=False)
+    app.add_config_value("vhs_auto_install", True, rebuild=False)
+    app.add_config_value("vhs_cwd", None, rebuild=True)
 
     app.add_directive("vhs", VhsDirective)
     app.add_directive("vhs-inline", InlineVhsDirective)
