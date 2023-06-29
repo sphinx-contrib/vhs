@@ -42,7 +42,7 @@ class VhsLoggingAdapter(logging.SphinxLoggerAdapter):
         return f"[vhs] {msg}", kwargs
 
 
-vhs._logger = logger = VhsLoggingAdapter(logging.getLogger("sphinx-vhs"))  # type: ignore
+vhs._logger = logger = VhsLoggingAdapter(logging.getLogger("sphinx-vhs").logger, {})  # type: ignore
 
 
 def _get_paths(env: sphinx.environment.BuildEnvironment):
@@ -163,7 +163,7 @@ class ProgressReporter(vhs.DefaultProgressReporter):
     def progress(self, desc: str, dl_size: int, total_size: int, speed: float, /):
         if self._verbosity:
             if desc != self._prev_desc:
-                logger.info(f"[vhs] %s", desc)
+                logger.info("%s", desc)
         else:
             super().progress(desc, dl_size, total_size, speed)
 
@@ -195,7 +195,7 @@ def clear_unused_files(
     dest_dir, img_dir = _get_paths(env)
     used_files = _get_used_files(env)
 
-    logger.debug("[vhs] cleaning up old VHS files...")
+    logger.debug("cleaning up old VHS files...")
     for file in itertools.chain(
         dest_dir.glob("vhs-*.gif"),
         dest_dir.glob("vhs-*.tape"),
@@ -203,7 +203,7 @@ def clear_unused_files(
     ):
         name = file.name[: -len(file.suffix)]
         if name not in used_files:
-            logger.debug("[vhs] removing %s", file)
+            logger.debug("removing %s", file)
             os.remove(file)
 
 
@@ -257,7 +257,7 @@ def generate_vhs(
     ]
 
     if not paths_to_generate:
-        logger.debug("[vhs] no outdated tapes")
+        logger.debug("no outdated tapes")
         return
 
     try:
@@ -280,7 +280,7 @@ def generate_vhs(
     chunks = sphinx.util.parallel.make_chunks(paths_to_generate, app.parallel)  # type: ignore
 
     logger.debug(
-        "[vhs] rendering VHS tapes: %s files, parallel=%s",
+        "rendering VHS tapes: %s files, parallel=%s",
         len(paths_to_generate),
         app.parallel,
     )
@@ -310,7 +310,7 @@ def generate_vhs(
 def generate_single_vhs(arg):
     runner, chunk = arg
     for src_file, dst_file, docname, lineno in chunk:
-        logger.debug("[vhs] rendering %s", src_file)
+        logger.debug("rendering %s", src_file)
         try:
             runner.run(src_file, dst_file)
         except vhs.VhsError as e:

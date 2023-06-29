@@ -108,46 +108,9 @@ But can it run inside ReadTheDocs?
 ----------------------------------
 
 Like all good tools that require non-trivial setup and environment, it can't.
-I've tried adding a workaround where sphinx-vhs downloads VHS binary and all dependencies,
-but ReadTheDocs seems to use an older version of Linux core, which VHS can't work with.
+ReadTheDocs seems to use an older version of Linux core, which VHS can't work with.
 
 So, I'd recommend using GitHub Pages to host your documentation. Check out our workflow
 in `.github/workflows/docs.yaml`_ to see how you could set this up. Sorry for that 😕
 
 .. _.github/workflows/docs.yaml: https://github.com/taminomara/sphinx-vhs/blob/main/.github/workflows/docs.yaml
-
-
-.. vhs-inline::
-   :scale: 25%
-
-   Type "pwd # 1"
-   Enter
-   Sleep 5s
-
-.. vhs-inline::
-   :scale: 25%
-
-   Type "pwd # 2"
-   Enter
-   Sleep 5s
-
-.. vhs-inline::
-   :scale: 25%
-
-   Type "pwd # 3"
-   Enter
-   Sleep 5s
-
-.. vhs-inline::
-   :scale: 25%
-
-   Type "pwd # 4"
-   Enter
-   Sleep 5s
-
-.. vhs-inline::
-   :scale: 25%
-
-   Type "pwd # 5
-   Enter
-   Sleep 5s
