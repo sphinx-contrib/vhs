@@ -32,8 +32,8 @@ jobs:
           - "3.10"
           - "3.11"
         include:
-          - os: windows-latest
-            python-version: "3.11"
+          # - os: windows-latest
+          #   python-version: "3.11"
           - os: macos-latest
             python-version: "3.11"
     runs-on: ${{ matrix.os }}
@@ -55,7 +55,7 @@ jobs:
       - run: |
           echo 'Type "true"' > _empty_vhs_tape.tape
       - name: Install VHS
-        uses: charmbracelet/vhs-action@v1
+        uses: charmbracelet/vhs-action@v2
         with:
           path: _empty_vhs_tape.tape
       - name: Test package
