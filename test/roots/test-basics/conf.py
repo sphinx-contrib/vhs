@@ -1,2 +1,2 @@
 extensions = ["sphinx_vhs"]
-vhs_auto_install = False
+# vhs_auto_install = False

@@ -71,7 +71,7 @@ class VhsDirective(SphinxDirective, Figure):
                 "`figwidth=image` option is not supported for directive %s", self.name
             )
 
-        lines = self._get_tape_contents()
+        lines = self._inline_tape(self._get_tape_contents())
 
         # remove all comments
         tape = "\n".join(
@@ -102,7 +102,7 @@ class VhsDirective(SphinxDirective, Figure):
                 "docname": self.env.docname,
                 "lineno": self.lineno,
                 "filename": filename,
-                "origname": self.arguments[0],
+                "origname": self.arguments[0] if self.arguments else "<inline>",
             }
         )
 
@@ -119,7 +119,6 @@ class VhsDirective(SphinxDirective, Figure):
         return [figure_node]
 
     def _get_tape_contents(self, path: _t.Optional[pathlib.Path] = None):
-        cwd = pathlib.Path(self.env.app.config["vhs_cwd"] or self.env.srcdir)
         path = path or pathlib.Path(self.env.srcdir, self.arguments[0])
         path = path.resolve()
         if not path.exists():
@@ -135,6 +134,11 @@ class VhsDirective(SphinxDirective, Figure):
                     self.state.document.settings.record_dependencies.add(str(path))
             except Exception as e:
                 raise self.error(str(e))
+
+        return lines
+
+    def _inline_tape(self, lines):
+        cwd = pathlib.Path(self.env.app.config["vhs_cwd"] or self.env.srcdir)
 
         flatten_lines = []
         for line in lines:
