@@ -21,7 +21,6 @@ from sphinx.util import logging
 from sphinx.util.console import bold, teal, term_width_line  # type: ignore
 from sphinx.util.docutils import SphinxDirective
 
-
 try:
     from sphinx_vhs._version import __version__, __version_tuple__
 except ImportError:
