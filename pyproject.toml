@@ -25,7 +25,7 @@ classifiers = [
 ]
 dependencies = [
     "sphinx>=5.0.2",
-    "vhs~=0.0.3",
+    "vhs~=0.0.4",
 ]
 
 [project.optional-dependencies]
