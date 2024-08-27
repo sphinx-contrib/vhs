@@ -21,11 +21,6 @@ from sphinx.util import logging
 from sphinx.util.console import bold, teal, term_width_line  # type: ignore
 from sphinx.util.docutils import SphinxDirective
 
-try:
-    from sphinx.util.display import status_iterator  # type: ignore
-except ImportError:
-    from sphinx.util import status_iterator  # type: ignore
-
 
 try:
     from sphinx_vhs._version import __version__, __version_tuple__
@@ -43,7 +38,7 @@ class VhsLoggingAdapter(logging.SphinxLoggerAdapter):
 
 
 _logger = logging.getLogger("sphinx-vhs")
-vhs._logger = logger = VhsLoggingAdapter(_logger.logger)  # type: ignore
+vhs._logger = logger = VhsLoggingAdapter(_logger.logger, extra={})  # type: ignore
 
 
 def _get_paths(env: sphinx.environment.BuildEnvironment):

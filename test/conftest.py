@@ -1,5 +1,4 @@
 import pytest
-from sphinx.testing import comparer
 from sphinx.testing.path import path
 
 pytest_plugins = "sphinx.testing.fixtures"
