@@ -311,7 +311,7 @@ def generate_vhs(
         done = total - left
         tape = f" {sorted(tapes_left)[0]}" if tapes_left else ""
         if left > 1:
-            tape += f" +{left - 1} mode"
+            tape += f" +{left - 1} more"
         _logger.info(
             term_width_line(
                 f"{bold('rendering VHS tapes...')} [{done}/{total}]{teal(tape)}"
