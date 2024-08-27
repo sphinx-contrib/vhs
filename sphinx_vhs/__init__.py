@@ -139,11 +139,11 @@ class VhsDirective(SphinxDirective, Figure):
         flatten_lines = []
         for line in lines:
             if match := re.match(
-                r"^\s*Source\s+['\"`]?(?P<path>.*?)['\"`]?\s*$",
-                line,
-                re.IGNORECASE
+                r"^\s*Source\s+['\"`]?(?P<path>.*?)['\"`]?\s*$", line, re.IGNORECASE
             ):
-                flatten_lines.extend(self._get_tape_contents(cwd.joinpath(match.group("path"))))
+                flatten_lines.extend(
+                    self._get_tape_contents(cwd.joinpath(match.group("path")))
+                )
             else:
                 flatten_lines.append(line)
 
