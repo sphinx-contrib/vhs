@@ -18,7 +18,7 @@ import sphinx.writers
 import vhs
 from docutils.parsers.rst.directives.images import Figure
 from sphinx.util import logging
-from sphinx.util.console import bold  # type: ignore
+from sphinx.util.console import bold, teal, term_width_line  # type: ignore
 from sphinx.util.docutils import SphinxDirective
 
 try:
@@ -42,7 +42,8 @@ class VhsLoggingAdapter(logging.SphinxLoggerAdapter):
         return f"[vhs] {msg}", kwargs
 
 
-vhs._logger = logger = VhsLoggingAdapter(logging.getLogger("sphinx-vhs").logger, {})  # type: ignore
+_logger = logging.getLogger("sphinx-vhs")
+vhs._logger = logger = VhsLoggingAdapter(_logger.logger)  # type: ignore
 
 
 def _get_paths(env: sphinx.environment.BuildEnvironment):
@@ -101,6 +102,7 @@ class VhsDirective(SphinxDirective, Figure):
                 "docname": self.env.docname,
                 "lineno": self.lineno,
                 "filename": filename,
+                "origname": self.arguments[0],
             }
         )
 
@@ -116,9 +118,9 @@ class VhsDirective(SphinxDirective, Figure):
 
         return [figure_node]
 
-    def _get_tape_contents(self):
-        lines = []
-        path = pathlib.Path(self.env.srcdir, self.arguments[0])
+    def _get_tape_contents(self, path: _t.Optional[pathlib.Path] = None):
+        cwd = pathlib.Path(self.env.app.config["vhs_cwd"] or self.env.srcdir)
+        path = path or pathlib.Path(self.env.srcdir, self.arguments[0])
         path = path.resolve()
         if not path.exists():
             logger.error("Path %s does not exist", path)
@@ -129,11 +131,23 @@ class VhsDirective(SphinxDirective, Figure):
         else:
             try:
                 with path.open() as file:
-                    lines.extend(file.read().splitlines())
+                    lines = file.read().splitlines()
                     self.state.document.settings.record_dependencies.add(str(path))
             except Exception as e:
                 raise self.error(str(e))
-        return lines
+
+        flatten_lines = []
+        for line in lines:
+            if match := re.match(
+                r"^\s*Source\s+['\"`]?(?P<path>.*?)['\"`]?\s*$",
+                line,
+                re.IGNORECASE
+            ):
+                flatten_lines.extend(self._get_tape_contents(cwd.joinpath(match.group("path"))))
+            else:
+                flatten_lines.append(line)
+
+        return flatten_lines
 
 
 class InlineVhsDirective(VhsDirective):
@@ -251,6 +265,7 @@ def generate_vhs(
             dest_dir / (file + ".gif"),
             env.doc2path(data[0]["docname"]),
             data[0]["lineno"],
+            data[0]["origname"],
         )
         for file, data in used_files.items()
         if not (dest_dir / (file + ".gif")).exists()
@@ -284,42 +299,55 @@ def generate_vhs(
     else:
         chunks = [paths_to_generate]
 
-    logger.debug(
-        "rendering VHS tapes: %s files, parallel=%s",
-        len(paths_to_generate),
-        app.parallel,
-    )
+    tapes_left = {p[4] for p in paths_to_generate}
 
-    progress = status_iterator(
-        range(len(chunks)),
-        "rendering VHS tapes... ",
-        "teal",
-        len(chunks),
-        app.verbosity,
-    )
+    def on_tape_done(origname):
+        if app.verbosity:
+            return
 
-    next(progress)
+        if origname in tapes_left:
+            tapes_left.remove(origname)
 
-    def on_chunk_done(*args, **kwargs):
-        try:
-            next(progress)
-        except StopIteration:
-            pass
+        total = len(paths_to_generate)
+        left = len(tapes_left)
+        done = total - left
+        tape = f" {sorted(tapes_left)[0]}" if tapes_left else ""
+        if left > 1:
+            tape += f" +{left - 1} mode"
+        _logger.info(
+            term_width_line(
+                f"{bold('rendering VHS tapes...')} [{done}/{total}]{teal(tape)}"
+            ),
+            nonl=True,
+        )
+
+    if app.verbosity:
+        logger.info(
+            f"{bold('rendering VHS tapes')}: %s files, parallel=%s",
+            len(paths_to_generate),
+            app.parallel,
+        )
+    else:
+        on_tape_done(None)
 
     for chunk in chunks:
-        tasks.add_task(generate_vhs_worker, (runner, chunk), on_chunk_done)
+        tasks.add_task(generate_vhs_worker, (runner, chunk, on_tape_done))
 
     tasks.join()
 
+    if not app.verbosity:
+        _logger.info("")
+
 
 def generate_vhs_worker(arg):
-    runner, chunk = arg
-    for src_file, dst_file, docname, lineno in chunk:
+    runner, chunk, on_tape_done = arg
+    for src_file, dst_file, docname, lineno, origname in chunk:
         logger.debug("rendering %s", src_file)
         try:
             runner.run(src_file, dst_file)
         except vhs.VhsError as e:
             raise sphinx.errors.ExtensionError(f"at {docname}:{lineno}:\n{e}") from e
+        on_tape_done(origname)
 
 
 def process_vhs_nodes(
