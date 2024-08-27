@@ -360,10 +360,10 @@ def process_vhs_nodes(
 
 
 def setup(app: sphinx.application.Sphinx):
-    app.add_config_value("vhs_min_version", "0.5.0", rebuild=False)
-    app.add_config_value("vhs_auto_install_location", None, rebuild=False)
-    app.add_config_value("vhs_auto_install", True, rebuild=False)
-    app.add_config_value("vhs_cwd", None, rebuild=True)
+    app.add_config_value("vhs_min_version", "0.5.0", rebuild="")
+    app.add_config_value("vhs_auto_install_location", None, rebuild="")
+    app.add_config_value("vhs_auto_install", True, rebuild="")
+    app.add_config_value("vhs_cwd", None, rebuild="env")
 
     app.add_directive("vhs", VhsDirective)
     app.add_directive("vhs-inline", InlineVhsDirective)
