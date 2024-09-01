@@ -155,7 +155,7 @@ class InlineVhsDirective(VhsDirective):
     def _get_tape_contents(self, path: _t.Optional[pathlib.Path] = None):
         if path:
             return super()._get_tape_contents(path)
-        
+
         self.assert_has_content()
         lines = self.content
         self.content = []  # type: ignore
