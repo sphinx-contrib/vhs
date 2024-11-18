@@ -4,6 +4,7 @@ import itertools
 import os
 import pathlib
 import re
+import shutil
 import typing as _t
 
 import docutils.nodes
@@ -53,7 +54,7 @@ def _get_paths(env: sphinx.environment.BuildEnvironment):
 def _get_used_files(env: sphinx.environment.BuildEnvironment) -> _t.Dict[str, dict]:
     res = collections.defaultdict(list)
     for f in getattr(env, "vhs_used_files", []):
-        res[f["filename"]].append(f)
+        res[f["tape_hash"]].append(f)
     return dict(res)
 
 
@@ -80,10 +81,16 @@ class VhsDirective(SphinxDirective, Figure):
             ]
         )
 
-        filename = "vhs-" + hashlib.sha256(tape.encode()).hexdigest()
-        dest_dir = pathlib.Path(self.env.app.builder.doctreedir, "vhs_tapes_cache")
+        filename = "vhs-" + (self._get_gif_filename() or "inline")
+        tape_hash = hashlib.sha256(tape.encode()).hexdigest()
+        dest_dir = pathlib.Path(
+            self.env.app.builder.doctreedir,
+            "vhs_tapes_cache",
+            tape_hash,
+        )
         dest_dir.mkdir(parents=True, exist_ok=True)
-        dest_tape = dest_dir / (filename + ".tape")
+        dest_tape = dest_dir / ("vhs.tape")
+        dest_render = dest_dir / ("vhs.gif")
         dest_file = str(dest_dir / (filename + ".gif"))
 
         with dest_tape.open("w") as file:
@@ -95,7 +102,10 @@ class VhsDirective(SphinxDirective, Figure):
             {
                 "docname": self.env.docname,
                 "lineno": self.lineno,
-                "filename": filename,
+                "tape_hash": tape_hash,
+                "tape_file": dest_tape,
+                "render_file": dest_render,
+                "gif_file": dest_file,
                 "origname": self.arguments[0] if self.arguments else "<inline>",
             }
         )
@@ -111,6 +121,15 @@ class VhsDirective(SphinxDirective, Figure):
             orig_node.replace_self(vhs_node)
 
         return [figure_node]
+
+    def _get_gif_filename(self):
+        name = pathlib.Path(self.arguments[0]).name
+        if name.endswith(".tape"):
+            return name[:-5]
+        elif name.endswith(".vhs"):
+            return name[:-4]
+        else:
+            return name
 
     def _get_tape_contents(self, path: _t.Optional[pathlib.Path] = None):
         path = path or pathlib.Path(self.env.srcdir, self.arguments[0])
@@ -151,6 +170,9 @@ class VhsDirective(SphinxDirective, Figure):
 class InlineVhsDirective(VhsDirective):
     required_arguments = 0
     optional_arguments = 0
+
+    def _get_gif_filename(self):
+        return None
 
     def _get_tape_contents(self, path: _t.Optional[pathlib.Path] = None):
         if path:
@@ -211,15 +233,14 @@ def clear_unused_files(
     used_files = _get_used_files(env)
 
     logger.debug("cleaning up old VHS files...")
-    for file in itertools.chain(
-        dest_dir.glob("vhs-*.gif"),
-        dest_dir.glob("vhs-*.tape"),
-        img_dir.glob("vhs-*.gif"),
-    ):
-        name = file.name[: -len(file.suffix)]
-        if name not in used_files:
-            logger.debug("removing %s", file)
-            os.remove(file)
+    for file in img_dir.glob("vhs-*.gif"):
+        logger.debug("removing %s", file)
+        os.remove(file)
+
+    for dir in dest_dir.glob("*"):
+        if dir.name not in used_files:
+            logger.debug("removing %s", dir)
+            shutil.rmtree(dir)
 
 
 # Merge `vhs_used_files` from one environment into another.
@@ -257,24 +278,24 @@ def generate_vhs(
     # Another clean-up run after re-reading docs and updating a list of used gifs.
     clear_unused_files(app, env, [])
 
-    dest_dir, img_dir = _get_paths(env)
     used_files = _get_used_files(env)
+
+    outdated_files = [
+        data
+        for data in used_files.values()
+        if not pathlib.Path(data[0]["render_file"]).exists()
+    ]
 
     paths_to_generate = [
         (
-            dest_dir / (file + ".tape"),
-            dest_dir / (file + ".gif"),
+            data[0]["tape_file"],
+            data[0]["render_file"],
             env.doc2path(data[0]["docname"]),
             data[0]["lineno"],
             data[0]["origname"],
         )
-        for file, data in used_files.items()
-        if not (dest_dir / (file + ".gif")).exists()
+        for data in outdated_files
     ]
-
-    if not paths_to_generate:
-        logger.debug("no outdated tapes")
-        return
 
     try:
         runner = vhs.resolve(
@@ -338,6 +359,11 @@ def generate_vhs(
 
     if not app.verbosity:
         _logger.info("")
+
+    for instances in outdated_files:
+        for data in instances:
+            if data["render_file"] != data["gif_file"]:
+                shutil.copy(data["render_file"], data["gif_file"])
 
 
 def generate_vhs_worker(arg):
