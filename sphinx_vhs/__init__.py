@@ -1,14 +1,14 @@
+import base64
 import collections
-from datetime import datetime, timedelta
 import hashlib
-from multiprocessing.pool import ThreadPool
 import os
 import pathlib
 import re
 import shutil
 import typing as _t
 from dataclasses import dataclass
-import base64
+from datetime import datetime, timedelta
+from multiprocessing.pool import ThreadPool
 
 import docutils.nodes
 import docutils.statemachine
@@ -20,7 +20,7 @@ import vhs
 from docutils.parsers.rst.directives.images import Figure
 from sphinx.transforms import SphinxTransform
 from sphinx.util import logging
-from sphinx.util.console import bold, yellow, teal, term_width_line
+from sphinx.util.console import bold, teal, term_width_line, yellow
 from sphinx.util.docutils import SphinxDirective
 
 from sphinx_vhs._version import *

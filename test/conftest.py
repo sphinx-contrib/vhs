@@ -1,5 +1,6 @@
-import pytest
 import pathlib
+
+import pytest
 
 pytest_plugins = "sphinx.testing.fixtures"
 
