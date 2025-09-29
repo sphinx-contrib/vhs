@@ -10,37 +10,43 @@ and rendering them during sphinx build.
 
 .. _charm: https://charm.sh/
 
+
+.. toctree::
+    :hidden:
+    :caption: Links
+
+    GitHub <https://github.com/taminomara/python-vhs/>
+
+
 Quickstart
 ----------
 
-Install the ``sphinx-vhs`` package:
+1. Install the ``sphinx-vhs`` package:
 
-.. code-block:: sh
+   .. code-block:: console
 
-    pip3 install sphinx-vhs
+       $ pip install sphinx-vhs
 
-And add it to your ``conf.py``:
+2. And add it to your ``conf.py``:
 
-.. code-block:: python
+   .. code-block:: python
 
-   extensions = ["sphinx_vhs", ...]
+      extensions = ["sphinx_vhs", ...]
 
-Now put some tapes into your documentation source dir,
-and use the **vhs** directive to render them:
+3. Now put some tapes into your documentation source dir,
+   and use the **vhs** directive to render them:
 
-.. code-block:: rst
+   .. code-block:: rst
 
-   .. vhs:: _tapes/simple.tape
-      :alt: A gif showing some hello-world text being typed into console.
-      :scale: 25%
+      .. vhs:: /_tapes/simple.tape
+         :alt: A gif showing some hello-world text being typed into console.
 
-This will make you a nice gif:
+   .. dropdown:: Example output
 
-.. highlights::
+      .. highlights::
 
-   .. vhs:: _tapes/simple.tape
-      :alt: A gif showing some hello-world text being typed into console.
-      :scale: 25%
+         .. vhs:: /_tapes/simple.tape
+            :alt: A gif showing some hello-world text being typed into console.
 
 Oh, and don't forget to compile with ``SPHINXOPTS="-j auto"`` to speed things up.
 Sphinx-VHS can process tapes in parallel, but only if you let it.
@@ -48,93 +54,109 @@ Sphinx-VHS can process tapes in parallel, but only if you let it.
 Usage
 -----
 
-The **vhs** directive has all the same attributes as the figure_,
-so you can caption it and reference it:
+.. rst:directive:: .. vhs:: <path>
+
+   The **vhs** directive has all the same attributes as the figure_,
+   so you can caption it and reference it. Path is relative to the current doc file;
+   if it starts with ``/``, it is relative to the content root, just like with
+   the figure_ directive.
+
+   **Example:**
+
+   .. code-block:: rst
+
+      .. vhs:: /_tapes/simple.tape
+         :alt: A gif showing some hello-world text being typed into console.
+         :name: gif-reference
+
+         Look, a small :ref:`gif <gif-reference>`! Isn't it cute?
+
+   .. dropdown:: Example output
+
+      .. vhs:: /_tapes/simple.tape
+         :alt: A gif showing some hello-world text being typed into console.
+         :name: gif-reference
+
+         Look, a :ref:`gif <gif-reference>`! Isn't it cute?
+
+.. rst:directive:: .. vhs-inline::
+
+   There's also **vhs-inline**, which lets you paste a small tape right
+   into your documentation. It also works like a figure_,
+   but, well, you won't be able to caption it:
+
+   .. code-block:: rst
+
+      .. vhs-inline::
+
+         Type "pwd"
+         Sleep 500ms
+         Enter
+         Sleep 500ms
+         Type "ls -l"
+         Sleep 500ms
+         Enter
+         Sleep 5s
+
+   .. dropdown:: Example output
+
+      .. vhs-inline::
+
+         Type "pwd"
+         Sleep 500ms
+         Enter
+         Sleep 500ms
+         Type "ls -l"
+         Sleep 500ms
+         Enter
+         Sleep 3s
 
 .. _figure: https://docutils.sourceforge.io/docs/ref/rst/directives.html#figure
-
-.. code-block:: rst
-
-   .. _gif-reference:
-
-   .. vhs:: _tapes/simple.tape
-      :alt: A gif showing some hello-world text being typed into console.
-      :scale: 25%
-
-      Look, a small :ref:`gif <gif-reference>`! Isn't it cute?
-
-This will make you a :ref:`figure <gif-reference>` with a caption:
-
-.. highlights::
-
-   .. _gif-reference:
-
-   .. vhs:: _tapes/simple.tape
-      :alt: A gif showing some hello-world text being typed into console.
-      :scale: 25%
-
-      Look, a small :ref:`gif <gif-reference>`! Isn't it cute?
-
-
-There's also **vhs-inline**, which lets you paste a small tape right
-into your documentation. It also works like a figure_,
-but, well, you won't be able to caption it:
-
-.. code-block:: rst
-
-   .. vhs-inline::
-      :scale: 25%
-
-      Type "pwd"
-      Sleep 500ms
-      Enter
-      Sleep 500ms
-      Type "ls -l"
-      Sleep 500ms
-      Enter
-      Sleep 5s
-
-.. highlights::
-
-   .. vhs-inline::
-      :scale: 25%
-
-      Type "pwd"
-      Sleep 500ms
-      Enter
-      Sleep 500ms
-      Type "ls -l"
-      Sleep 500ms
-      Enter
-      Sleep 5s
 
 Settings
 --------
 
 Sphinx-VHS adds the following settings to ``conf.py``:
 
-- ``vhs_min_version``: minimum VHS version required to render types.
+.. py:data:: vhs_min_version
+   :type: bool
 
-  Default: ``"0.5.0"``.
+   Minimum VHS version required to render types.
 
-- ``vhs_cwd``: working dir for VHS runs.
+   Default: ``"0.5.0"``.
 
-  Default: documentation source dir.
+.. py:data:: vhs_max_version
+   :type: bool
 
-- ``vhs_auto_install``: whether to install VHS in case it is missing or outdated.
+   Maximum VHS version required to render types. Set to `None` to disable maximum
+   version checking.
 
-  Default: ``True``.
+   Default: ``"2.0.0"``.
 
-- ``vhs_auto_install_location``: path where VHS binaries should be installed to.
+.. py:data:: vhs_cwd
+   :type: bool
 
-  Default: see :func:`vhs.default_cache_path`.
+   Working dir for VHS runs. Affects ``Source`` commands in tapes.
 
-But can it run inside ReadTheDocs?
-----------------------------------
+   Default: documentation source dir.
 
-Nope! ReadTheDocs seems to use an older version of Linux core, which VHS can't work with.
+.. py:data:: vhs_auto_install
+   :type: bool
 
-So, I'd recommend using GitHub Pages to host your documentation. Check out our workflow
-in `.github/workflows/ci.yaml`_ to see how you could set this up. Sorry for that 😕
+   Whether to install VHS in case it is missing or outdated.
 
-.. _.github/workflows/ci.yaml: https://github.com/taminomara/sphinx-vhs/blob/main/.github/workflows/ci.yaml
+   Default: `True`.
+
+.. py:data:: vhs_auto_install_location
+   :type: pathlib.Path | str
+
+   Path where VHS binaries should be installed to.
+
+   Default: see :func:`vhs.default_cache_path`.
+
+.. py:data:: vhs_cleanup_delay
+   :type: datetime.timedelta
+
+   Sphinx VHS will delete unused GIFs after this period.
+
+   Default: 1 day.
