@@ -4,43 +4,50 @@ authors = [{name = "Tamika Nomara", email = "taminomara@gmail.com"}]
 description = "Sphinx plugin that generates terminal GIFs using charm's VHS"
 dynamic = ["version"]
 readme = "README.md"
-license = {file = "LICENSE"}
-requires-python = ">=3.8"
+license = "MIT"
+requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Framework :: Sphinx",
     "Framework :: Sphinx :: Extension",
     "Topic :: Software Development :: Documentation",
-    "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Documentation",
     "Topic :: Documentation :: Sphinx",
     "Intended Audience :: Developers",
+    "Typing :: Typed",
 ]
 dependencies = [
-    "sphinx>=5.0.2",
-    "vhs~=0.0.4",
+    "sphinx>=8.0,<9.0",
+    "vhs>=1.0.0,<2.0",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
+dev = [
+    "pytest-cov==7.0.0",
+    {include-group = "test"},
+    {include-group = "lint"},
+    {include-group = "doc"},
+]
 test = [
-    "pytest~=7.0",
-    "pytest-mypy~=0.10.3",
-    "black~=23.0",
-    "isort~=5.12.0",
+    "pyright==1.1.405",
+    "pytest==8.4.2",
+    "sybil==9.2.0",
     "html5lib~=1.1",
-    "types-requests",
-    "types-docutils",
-    "types-html5lib",
+]
+lint = [
+    "black==25.1.0",
+    "isort==6.0.1",
+    "pre-commit==4.3.0",
 ]
 doc = [
-    "sphinx-rtd-theme~=1.2.2",
+    "sybil==9.2.0",
+    "furo==2025.9.25",
+    "sphinx_design==0.6.1",
 ]
 
 [project.urls]
@@ -57,5 +64,25 @@ write_to = "sphinx_vhs/_version.py"
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-testpaths = ["sphinx_vhs", "test"]
-addopts = ["--mypy"]
+addopts = ["--strict-markers", "-p no:doctest"]
+testpaths = ["test", "sphinx_vhs", "docs"]
+
+[tool.pyright]
+include = ["sphinx_syntax"]
+exclude = ["**/__pycache__"]
+typeCheckingMode = "strict"
+pythonVersion = "3.12"
+pythonPlatform = "All"
+
+reportMissingParameterType = "none"
+reportUnknownParameterType = "none"
+reportUnknownVariableType = "none"
+reportUnknownMemberType = "none"
+reportUnknownArgumentType = "none"
+reportUnknownLambdaType = "none"
+reportUnnecessaryIsInstance = "none"
+reportUnnecessaryTypeIgnoreComment = "warning"
+
+[tool.isort]
+profile = "black"
+skip_gitignore = true

@@ -15,3 +15,14 @@ and rendering them during sphinx build.
 - [Source](https://github.com/taminomara/sphinx-vhs/)
 - [PyPi](https://pypi.org/project/sphinx-vhs/)
 - [Changelog](https://github.com/taminomara/sphinx-vhs/blob/main/CHANGELOG.md)
+
+## Requirements
+
+- python >= 3.11
+- sphinx >= 8.0
+
+## Installation
+
+```sh
+pip install sphinx-vhs
+```
