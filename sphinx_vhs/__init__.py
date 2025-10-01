@@ -1,7 +1,6 @@
 import base64
 import collections
 import hashlib
-import os
 import pathlib
 import re
 import shutil
@@ -20,7 +19,7 @@ import vhs
 from docutils.parsers.rst.directives.images import Figure
 from sphinx.transforms import SphinxTransform
 from sphinx.util import logging
-from sphinx.util.console import bold, teal, term_width_line, yellow
+from sphinx.util.console import colorize, term_width_line
 from sphinx.util.docutils import SphinxDirective
 
 from sphinx_vhs._version import *
@@ -30,7 +29,7 @@ vhs._logger = _logger = logging.getLogger(  # pyright: ignore[reportPrivateUsage
 )
 
 
-@dataclass
+@dataclass(unsafe_hash=True)
 class VhsData:
     docname: str
     lineno: int
@@ -41,33 +40,17 @@ class VhsData:
     origname: str
 
 
-def _get_paths(
-    env: sphinx.environment.BuildEnvironment,
-) -> tuple[pathlib.Path, pathlib.Path]:
-    dest_dir = pathlib.Path(env.app.builder.doctreedir, "vhs_tapes_cache")
-    dest_dir.mkdir(parents=True, exist_ok=True)
-
-    img_dir = pathlib.Path(env.app.builder.outdir, env.app.builder.imagedir)
-    img_dir.mkdir(parents=True, exist_ok=True)
-
-    return dest_dir, img_dir
-
-
 def _get_used_files(
     env: sphinx.environment.BuildEnvironment,
 ) -> _t.Dict[str, list[VhsData]]:
     res = collections.defaultdict(list)
-    for f in getattr(env, "vhs_used_files", []):
+    for f in getattr(env, "vhs_used_files", set()):
         res[f.tape_hash].append(f)
     return dict(res)
 
 
 class VhsDirective(SphinxDirective, Figure):
-    def run(self) -> list[docutils.nodes.Node]:
-        figwidth = self.options.get("figwidth")
-        if figwidth == "image":
-            _logger.warning("%s directive doesn't support :figwidth: image", self.name)
-
+    def run(self):
         lines = self._get_tape_contents_inlined()
         tape = "\n".join(lines)
 
@@ -89,8 +72,8 @@ class VhsDirective(SphinxDirective, Figure):
             file.write(tape)
 
         if not hasattr(self.env, "vhs_used_files"):
-            setattr(self.env, "vhs_used_files", [])
-        getattr(self.env, "vhs_used_files").append(
+            setattr(self.env, "vhs_used_files", set())
+        getattr(self.env, "vhs_used_files").add(
             VhsData(
                 docname=self.env.docname,
                 lineno=self.lineno,
@@ -106,9 +89,12 @@ class VhsDirective(SphinxDirective, Figure):
             )
         )
 
+        # We have to use data uri to obscure the fact that the image
+        # is generated later. If we were to use `dest_file` directly,
+        # HTML builder would complain that image doesn't exist.
+        # We substitute actual URI in `ProcessVhsNodes`.
         self.arguments = [f"data:vhs-tape;{dest_file}"]
-        nodes = super().run()
-        return [VhsNode(self.block_text, *nodes)]
+        return super().run()
 
     def _get_gif_filename(self) -> str | None:
         name = pathlib.Path(self.arguments[0]).name
@@ -200,10 +186,6 @@ class InlineVhsDirective(VhsDirective):
         return lines, "<inline>"
 
 
-class VhsNode(docutils.nodes.General, docutils.nodes.Element):
-    pass
-
-
 class ProgressReporter(vhs.DefaultProgressReporter):
     _prev_desc = None
     _prev_len = 0
@@ -223,7 +205,7 @@ class ProgressReporter(vhs.DefaultProgressReporter):
         self._prev_desc = desc
 
     def format_desc(self, desc: str) -> str:
-        return bold(desc + "...")
+        return colorize("bold", desc + "...")
 
     def format_progress(self, dl_size: int, total_size: int, speed: float) -> str:
         dl_size_mb = dl_size / 1024**2
@@ -237,22 +219,14 @@ class ProgressReporter(vhs.DefaultProgressReporter):
         _logger.info(msg, nonl=True, type="vhs")
 
 
-# This runs on `env-before-read-docs` to purge all cached gifs and tapes
-# if fresh env (-E) was used. This also runs on `env-updated` to purge
-# cached gifs that were used in the previous build, but aren't used now.
 def clear_unused_files(
-    app: sphinx.application.Sphinx,
     env: sphinx.environment.BuildEnvironment,
-    docnames: _t.List[str],
 ):
-    dest_dir, img_dir = _get_paths(env)
+    dest_dir = pathlib.Path(env.app.builder.doctreedir, "vhs_tapes_cache")
+    dest_dir.mkdir(parents=True, exist_ok=True)
     used_files = _get_used_files(env)
 
     _logger.debug("cleaning up old VHS files...", type="vhs")
-    for file in img_dir.glob("vhs-*.gif"):
-        _logger.debug("removing %s", file, type="vhs")
-        os.remove(file)
-
     for dir in dest_dir.glob("*"):
         if dir.name not in used_files:
             modified = datetime.fromtimestamp(dir.stat().st_mtime)
@@ -269,8 +243,8 @@ def merge_used_files(
     other: sphinx.environment.BuildEnvironment,
 ):
     if not hasattr(env, "vhs_used_files"):
-        setattr(env, "vhs_used_files", [])
-    getattr(env, "vhs_used_files").extend(getattr(other, "vhs_used_files", []))
+        setattr(env, "vhs_used_files", set())
+    getattr(env, "vhs_used_files").update(getattr(other, "vhs_used_files", set()))
 
 
 # Drop `vhs_used_files` entries from an env. This runs when sphinx is going
@@ -281,11 +255,11 @@ def purge_used_files(
     docname: str,
 ):
     if hasattr(env, "vhs_used_files"):
-        vhs_used_files = [
+        vhs_used_files = {
             used_files
             for used_files in getattr(env, "vhs_used_files")
             if used_files.docname != docname
-        ]
+        }
         setattr(env, "vhs_used_files", vhs_used_files)
 
 
@@ -294,7 +268,7 @@ def generate_vhs(
     app: sphinx.application.Sphinx, env: sphinx.environment.BuildEnvironment
 ):
     # Another clean-up run after re-reading docs and updating a list of used gifs.
-    clear_unused_files(app, env, [])
+    clear_unused_files(env)
 
     used_files = _get_used_files(env)
 
@@ -302,90 +276,99 @@ def generate_vhs(
         data[0] for data in used_files.values() if not data[0].render_file.exists()
     ]
 
-    try:
-        runner = vhs.resolve(
-            min_version=app.config["vhs_min_version"],
-            max_version=app.config["vhs_max_version"],
-            cwd=app.config["vhs_cwd"] or env.srcdir,
-            reporter=ProgressReporter(app.verbosity),
-            install=app.config["vhs_auto_install"],
-            cache_path=app.config["vhs_auto_install_location"],
-        )
-    except vhs.VhsError as e:
-        raise sphinx.errors.ExtensionError(str(e)) from e
-
-    in_progress = collections.Counter(p.origname for p in outdated_files)
-
-    def on_tape_done(origname: str | None):
-        if app.verbosity:
-            return
-
-        if origname:
-            orignames_left = in_progress[origname] - 1
-            if orignames_left > 0:
-                in_progress[origname] = orignames_left
-            else:
-                in_progress.pop(origname, None)
-
-        total = len(outdated_files)
-        left = in_progress.total()
-        done = total - left
-        tape = f" {sorted(in_progress)[0]}" if in_progress else ""
-        if left > 1:
-            tape += f" +{left - 1} more"
-        _logger.info(
-            term_width_line(
-                f"{bold('rendering VHS tapes...')} [{done}/{total}]{teal(tape)}"
-            ),
-            nonl=True,
-        )
-
-    if (
-        len(outdated_files) > 1
-        and sphinx.util.parallel.parallel_available
-        and app.parallel <= 1
-    ):
-        _logger.info(
-            yellow(
-                "rendering VHS tapes in sequence; pass -j auto to enable parallel run"
-            ),
-            type="vhs",
-        )
-    if app.verbosity:
-        _logger.info(
-            f"{bold('rendering VHS tapes')}: %s files, parallel=%s",
-            len(outdated_files),
-            app.parallel,
-            type="vhs",
-        )
-    else:
-        on_tape_done(None)
-
-    def worker(arg: VhsData):
-        _logger.debug("rendering %s", arg.tape_file, type="vhs")
+    if outdated_files:
         try:
-            runner.run(arg.tape_file, arg.render_file)
+            runner = vhs.resolve(
+                min_version=app.config["vhs_min_version"],
+                max_version=app.config["vhs_max_version"],
+                cwd=app.config["vhs_cwd"] or env.srcdir,
+                reporter=ProgressReporter(app.verbosity),
+                install=app.config["vhs_auto_install"],
+                cache_path=app.config["vhs_auto_install_location"],
+            )
         except vhs.VhsError as e:
-            path = env.doc2path(arg.docname)
-            raise sphinx.errors.ExtensionError(f"at {path}:{arg.lineno}:\n{e}") from e
-        on_tape_done(arg.origname)
+            raise sphinx.errors.ExtensionError(str(e)) from e
 
-    with ThreadPool(app.parallel or 1) as tasks:
-        for _ in tasks.imap_unordered(worker, outdated_files):
-            pass
+        in_progress = collections.Counter(p.origname for p in outdated_files)
 
-    if not app.verbosity:
-        _logger.info("")
+        def on_tape_done(origname: str | None):
+            if app.verbosity:
+                return
+
+            if origname:
+                orignames_left = in_progress[origname] - 1
+                if orignames_left > 0:
+                    in_progress[origname] = orignames_left
+                else:
+                    in_progress.pop(origname, None)
+
+            total = len(outdated_files)
+            left = in_progress.total()
+            done = total - left
+            tape = f" {sorted(in_progress)[0]}" if in_progress else ""
+            if left > 1:
+                tape += f" +{left - 1} more"
+            _logger.info(
+                term_width_line(
+                    f"{colorize("bold", "rendering VHS tapes...")} [{done}/{total}]{colorize("teal", tape)}"
+                ),
+                nonl=True,
+            )
+
+        if (
+            len(outdated_files) > 1
+            and sphinx.util.parallel.parallel_available
+            and app.parallel <= 1
+        ):
+            _logger.info(
+                colorize(
+                    "yellow",
+                    "rendering VHS tapes in sequence; pass -j auto to enable parallel run",
+                ),
+                type="vhs",
+            )
+        if app.verbosity:
+            _logger.info(
+                f"{colorize("bold", "rendering VHS tapes")}: %s files, parallel=%s",
+                len(outdated_files),
+                app.parallel,
+                type="vhs",
+            )
+        else:
+            on_tape_done(None)
+
+        def worker(arg: VhsData):
+            _logger.debug("rendering %s", arg.tape_file, type="vhs")
+            try:
+                runner.run(arg.tape_file, arg.render_file)
+            except vhs.VhsError as e:
+                path = env.doc2path(arg.docname)
+                raise sphinx.errors.ExtensionError(
+                    f"at {path}:{arg.lineno}:\n{e}"
+                ) from e
+            on_tape_done(arg.origname)
+
+        with ThreadPool(app.parallel or 1) as tasks:
+            for _ in tasks.imap_unordered(worker, outdated_files):
+                pass
+
+        if not app.verbosity:
+            _logger.info("")
 
     for instances in used_files.values():
         for data in instances:
             if data.render_file != data.gif_file and not data.gif_file.exists(
                 follow_symlinks=False
             ):
+                _logger.debug("make link: %s -> %s", data.render_file, data.gif_file)
                 try:
                     data.gif_file.symlink_to(data.render_file)
                 except NotImplementedError:
                     shutil.copyfile(data.render_file, data.gif_file)
+            else:
+                _logger.debug(
+                    "already linked: %s -> %s", data.render_file, data.gif_file
+                )
 
 
 class ProcessVhsNodes(SphinxTransform):
@@ -393,16 +376,13 @@ class ProcessVhsNodes(SphinxTransform):
     default_priority = 100
 
     def apply(self, **kwargs: _t.Any):
-        node: VhsNode
-        for node in self.document.findall(VhsNode):
-            for image in node.findall(docutils.nodes.image):
-                uri = image["uri"]
-                if uri.startswith("data:vhs-tape;"):
-                    uri = uri[len("data:vhs-tape;") :]
+        for image in self.document.findall(docutils.nodes.image):
+            uri = image["uri"]
+            if uri.startswith("data:vhs-tape;"):
+                uri = uri[len("data:vhs-tape;") :]
                 image["uri"] = uri
                 image["candidates"] = {"*": uri, "image/gif": uri}
                 self.env.images.add_file(self.env.docname, image["uri"])
-            node.replace_self(node.children)
 
 
 def setup(app: sphinx.application.Sphinx):
@@ -418,7 +398,6 @@ def setup(app: sphinx.application.Sphinx):
     app.add_directive("vhs", VhsDirective)
     app.add_directive("vhs-inline", InlineVhsDirective)
 
-    app.connect("env-before-read-docs", clear_unused_files)
     app.connect("env-merge-info", merge_used_files)
     app.connect("env-purge-doc", purge_used_files)
     app.connect("env-updated", generate_vhs)

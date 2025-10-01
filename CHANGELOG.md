@@ -2,6 +2,10 @@
 
 ## [unreleased]
 
+## [1.0.1]
+
+- Fix issue with GIFs being inappropriate deleted on partial rebuild.
+
 ## [1.0.0]
 
 - Initial release.
@@ -18,6 +22,7 @@
 
 - Updated CI and dependencies.
 
-[unreleased]: https://github.com/taminomara/sphinx-vhs/compare/v1.0.0...HEAD
+[unreleased]: https://github.com/taminomara/sphinx-vhs/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/taminomara/sphinx-vhs/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/taminomara/sphinx-vhs/compare/v1.0.0-beta0...v1.0.0
 [1.0.0-beta0]: https://github.com/taminomara/sphinx-vhs/compare/v0.0.4...v1.0.0-beta0
