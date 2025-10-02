@@ -35,7 +35,7 @@ nitpick_ignore_regex = [(r"py:class", r".*\.T")]
 
 html_theme = "furo"
 html_theme_options = {
-    "source_repository": "https://github.com/taminomara/sphinx-vhs",
+    "source_repository": "https://github.com/sphinx-contrib/vhs",
     "source_branch": "main",
     "source_directory": "docs/source",
 }

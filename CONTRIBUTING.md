@@ -2,11 +2,7 @@
 
 ## Set up your environment
 
-1. Check out the repo:
-
-   ```shell
-   git clone git@github.com:taminomara/sphinx-vhs.git
-   ```
+1. Clone the repository.
 
 2. Create a virtual environment with python `3.12` or newer.
 

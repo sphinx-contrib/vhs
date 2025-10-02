@@ -51,10 +51,10 @@ doc = [
 ]
 
 [project.urls]
-Documentation = "https://taminomara.github.io/sphinx-vhs/"
-Issues = "https://github.com/taminomara/sphinx-vhs/issues/"
-Source = "https://github.com/taminomara/sphinx-vhs/"
-Changelog = "https://github.com/taminomara/sphinx-vhs/blob/main/CHANGELOG.md"
+Documentation = "https://sphinx-vhs.readthedocs.io/en/stable/"
+Issues = "https://github.com/sphinx-contrib/vhs/issues/"
+Source = "https://github.com/sphinx-contrib/vhs/"
+Changelog = "https://github.com/sphinx-contrib/vhs/blob/main/CHANGELOG.md"
 
 [build-system]
 requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2", "wheel>=0.40"]

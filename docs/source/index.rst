@@ -15,7 +15,7 @@ and rendering them during sphinx build.
     :hidden:
     :caption: Links
 
-    GitHub <https://github.com/taminomara/python-vhs/>
+    GitHub <https://github.com/sphinx-contrib/vhs/>
 
 
 Quickstart

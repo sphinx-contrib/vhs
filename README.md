@@ -10,11 +10,11 @@ and rendering them during sphinx build.
 
 ## Resources
 
-- [Documentation](https://taminomara.github.io/sphinx-vhs/)
-- [Issues](https://github.com/taminomara/sphinx-vhs/issues/)
-- [Source](https://github.com/taminomara/sphinx-vhs/)
+- [Documentation](https://sphinx-vhs.readthedocs.io/en/latest/)
+- [Issues](https://github.com/sphinx-contrib/vhs/issues/)
+- [Source](https://github.com/sphinx-contrib/vhs/)
 - [PyPi](https://pypi.org/project/sphinx-vhs/)
-- [Changelog](https://github.com/taminomara/sphinx-vhs/blob/main/CHANGELOG.md)
+- [Changelog](https://github.com/sphinx-contrib/vhs/blob/main/CHANGELOG.md)
 
 ## Requirements
 
