@@ -1,6 +1,7 @@
 import base64
 import collections
 import hashlib
+import os
 import pathlib
 import re
 import shutil
@@ -285,6 +286,7 @@ def generate_vhs(
                 reporter=ProgressReporter(app.verbosity),
                 install=app.config["vhs_auto_install"],
                 cache_path=app.config["vhs_auto_install_location"],
+                env={"VHS_NO_SANDBOX": "true", **os.environ},
             )
         except vhs.VhsError as e:
             raise sphinx.errors.ExtensionError(str(e)) from e
