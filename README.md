@@ -10,7 +10,7 @@ and rendering them during sphinx build.
 
 ## Resources
 
-- [Documentation](https://sphinx-vhs.readthedocs.io/en/latest/)
+- [Documentation](https://sphinx-vhs.readthedocs.io/en/stable/)
 - [Issues](https://github.com/sphinx-contrib/vhs/issues/)
 - [Source](https://github.com/sphinx-contrib/vhs/)
 - [PyPi](https://pypi.org/project/sphinx-vhs/)
