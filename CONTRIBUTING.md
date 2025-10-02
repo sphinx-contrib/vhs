@@ -41,3 +41,19 @@ Just run `sphinx` as usual, nothing special is required:
 cd docs/
 make html
 ```
+
+## Release
+
+1. Update `changelog.md`. Make sure to update links at the end of the file.
+
+   Changelog *must* have a section for the new release, otherwise the build
+   will fail.
+
+2. Push a git tag. You'll need a repository admin role to do so.
+
+   All tags should start with prefix `v`, and follow semantic versioning guidelines.
+   This, among other things, means that tags for beta-, post-, etc. releases
+   should have form `v1.0.0-beta0` instead of Python's `v1.0.0b0`.
+
+3. From here, release happens automatically. PyPi package will be uploaded from
+   CI job, and documentation will be updated by Read the Docs build.
