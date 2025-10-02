@@ -51,6 +51,7 @@ Quickstart
 Oh, and don't forget to compile with ``SPHINXOPTS="-j auto"`` to speed things up.
 Sphinx-VHS can process tapes in parallel, but only if you let it.
 
+
 Usage
 -----
 
@@ -113,6 +114,7 @@ Usage
 
 .. _figure: https://docutils.sourceforge.io/docs/ref/rst/directives.html#figure
 
+
 Settings
 --------
 
@@ -160,3 +162,12 @@ Sphinx-VHS adds the following settings to ``conf.py``:
    Sphinx VHS will delete unused GIFs after this period.
 
    Default: 1 day.
+
+
+FAQ
+---
+
+**Build fails with `No usable sandbox! Update your kernel...`**
+
+If you're running your build in CI that doesn't enable sandbox API within
+its containers, you can set environment variable `VHS_NO_SANDBOX=true`.

@@ -278,6 +278,9 @@ def generate_vhs(
     ]
 
     if outdated_files:
+        environ = os.environ.copy()
+        if "READTHEDOCS" in environ:
+            environ["VHS_NO_SANDBOX"] = "true"
         try:
             runner = vhs.resolve(
                 min_version=app.config["vhs_min_version"],
@@ -286,7 +289,7 @@ def generate_vhs(
                 reporter=ProgressReporter(app.verbosity),
                 install=app.config["vhs_auto_install"],
                 cache_path=app.config["vhs_auto_install_location"],
-                env={"VHS_NO_SANDBOX": "true", **os.environ},
+                env=environ,
             )
         except vhs.VhsError as e:
             raise sphinx.errors.ExtensionError(str(e)) from e
