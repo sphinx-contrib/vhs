@@ -10,4 +10,4 @@ build:
       - pip install -U pip
       - pip install . --group doc
 sphinx:
-   configuration: docs/conf.py
+   configuration: docs/source/conf.py
