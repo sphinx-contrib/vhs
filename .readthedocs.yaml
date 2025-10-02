@@ -8,6 +8,6 @@ build:
       - git fetch --unshallow || true
     install:
       - pip install -U pip
-      - pip install . --group docs
+      - pip install . --group doc
 sphinx:
    configuration: docs/conf.py
