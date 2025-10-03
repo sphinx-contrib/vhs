@@ -10,7 +10,7 @@ repos:
       - id: isort
         name: isort
         language: system
-        entry: isort --filter-files
+        entry: isort --filter-files --diff --check
         types_or: [python, pyi]
         require_serial: true
   - repo: https://github.com/pre-commit/pre-commit-hooks
