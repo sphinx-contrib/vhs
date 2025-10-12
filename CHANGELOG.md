@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [1.2.0] - 2025-10-12
+
+- Forced parallel mode to 8 threads in readthedocs.
+
+  Since readthedocs doesn't provide an easy way to enable parallel builds, Sphinx-VHS will
+  default to 8 threads when running in readthedocs.
+
 ## [1.1.0] - 2025-10-03
 
 - Added support for building documentation in Read the Docs (it requires exporting
@@ -50,4 +57,5 @@
 [1.0.0-beta0]: https://github.com/sphinx-contrib/vhs/compare/v0.0.5...v1.0.0-beta0
 [1.0.1]: https://github.com/sphinx-contrib/vhs/compare/v1.0.0...v1.0.1
 [1.1.0]: https://github.com/sphinx-contrib/vhs/compare/v1.0.1...v1.1.0
-[unreleased]: https://github.com/sphinx-contrib/vhs/compare/v1.1.0...HEAD
+[1.2.0]: https://github.com/sphinx-contrib/vhs/compare/v1.1.0...v1.2.0
+[unreleased]: https://github.com/sphinx-contrib/vhs/compare/v1.2.0...HEAD
