@@ -353,7 +353,11 @@ def generate_vhs(
                 ) from e
             on_tape_done(arg.origname)
 
-        with ThreadPool(app.parallel or 1) as tasks:
+        if "READTHEDOCS" in environ and not app.parallel:
+            parallel = 8
+        else:
+            parallel = app.parallel or 1
+        with ThreadPool(parallel) as tasks:
             for _ in tasks.imap_unordered(worker, outdated_files):
                 pass
 
