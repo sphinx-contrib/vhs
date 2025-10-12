@@ -9,6 +9,8 @@
   Since readthedocs doesn't provide an easy way to enable parallel builds, Sphinx-VHS will
   default to 8 threads when running in readthedocs.
 
+- Releases are no longer uploaded to test version of PyPi.
+
 ## [1.1.0] - 2025-10-03
 
 - Added support for building documentation in Read the Docs (it requires exporting
