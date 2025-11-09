@@ -315,7 +315,7 @@ def generate_vhs(
                 tape += f" +{left - 1} more"
             _logger.info(
                 term_width_line(
-                    f"{colorize("bold", "rendering VHS tapes...")} [{done}/{total}]{colorize("teal", tape)}"
+                    f"{colorize("bold", "rendering terminal GIFs...")} [{done}/{total}]{colorize("teal", tape)}"
                 ),
                 nonl=True,
             )
@@ -328,13 +328,13 @@ def generate_vhs(
             _logger.info(
                 colorize(
                     "yellow",
-                    "rendering VHS tapes in sequence; pass -j auto to enable parallel run",
+                    "rendering terminal GIFs in sequence; pass -j auto to enable parallel run",
                 ),
                 type="vhs",
             )
         if app.verbosity:
             _logger.info(
-                f"{colorize("bold", "rendering VHS tapes")}: %s files, parallel=%s",
+                f"{colorize("bold", "rendering terminal GIFs")}: %s files, parallel=%s",
                 len(outdated_files),
                 app.parallel,
                 type="vhs",

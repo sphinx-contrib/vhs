@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+- Changed log message from "Rendering VHS tapes" to "Rendering terminal GIFs"
+  to avoid confusion for people who don't known the name of VHS project.
+
 ## [1.2.0] - 2025-10-12
 
 - Forced parallel mode to 8 threads in readthedocs.
