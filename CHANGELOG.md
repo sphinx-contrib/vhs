@@ -4,6 +4,7 @@
 
 ## [1.3.0] - 2025-11-09
 
+- Add ``vhs_n_jobs`` and ``vhs_n_jobs_read_the_docs`` config values.
 - Changed log message from "Rendering VHS tapes" to "Rendering terminal GIFs" to avoid
   confusion for people who don't known the name of VHS project.
 

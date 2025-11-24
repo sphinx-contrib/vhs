@@ -320,11 +320,12 @@ def generate_vhs(
                 nonl=True,
             )
 
-        if (
-            len(outdated_files) > 1
-            and sphinx.util.parallel.parallel_available
-            and app.parallel <= 1
-        ):
+        if "READTHEDOCS" in environ:
+            parallel = app.config["vhs_n_jobs_read_the_docs"] or app.parallel or 1
+        else:
+            parallel = app.config["vhs_n_jobs"] or app.parallel or 1
+
+        if sphinx.util.parallel.parallel_available and parallel <= 1:
             _logger.info(
                 colorize(
                     "yellow",
@@ -332,14 +333,13 @@ def generate_vhs(
                 ),
                 type="vhs",
             )
-        if app.verbosity:
+        else:
             _logger.info(
-                f"{colorize("bold", "rendering terminal GIFs")}: %s files, parallel=%s",
+                "rendering terminal GIFs: %s files, parallel=%s",
                 len(outdated_files),
-                app.parallel,
+                parallel,
                 type="vhs",
             )
-        else:
             on_tape_done(None)
 
         def worker(arg: VhsData):
@@ -353,10 +353,6 @@ def generate_vhs(
                 ) from e
             on_tape_done(arg.origname)
 
-        if "READTHEDOCS" in environ and not app.parallel:
-            parallel = 8
-        else:
-            parallel = app.parallel or 1
         with ThreadPool(parallel) as tasks:
             for _ in tasks.imap_unordered(worker, outdated_files):
                 pass
@@ -400,6 +396,8 @@ def setup(app: sphinx.application.Sphinx):
     app.add_config_value("vhs_auto_install_location", None, rebuild="")
     app.add_config_value("vhs_auto_install", True, rebuild="")
     app.add_config_value("vhs_cwd", None, rebuild="env")
+    app.add_config_value("vhs_n_jobs", None, rebuild="", types=int)
+    app.add_config_value("vhs_n_jobs_read_the_docs", 8, rebuild="", types=int)
     app.add_config_value(
         "vhs_cleanup_delay", timedelta(days=1), rebuild="env", types=timedelta
     )

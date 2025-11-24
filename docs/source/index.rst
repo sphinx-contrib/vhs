@@ -163,6 +163,18 @@ Sphinx-VHS adds the following settings to ``conf.py``:
 
    Default: 1 day.
 
+.. py:data:: vhs_n_jobs
+   :type: int
+
+   Number of parallel jobs that will be used to render tapes. Default is equal
+   to whatever's passed to ``-j`` flag.
+
+.. py:data:: vhs_n_jobs_read_the_docs
+   :type: int
+
+   Number of parallel jobs that will be used to render tapes in Read The Docs runners.
+   Default is ``8``.
+
 
 FAQ
 ---
@@ -170,4 +182,4 @@ FAQ
 **Build fails with `No usable sandbox! Update your kernel...`**
 
 If you're running your build in CI that doesn't enable sandbox API within
-its containers, you can set environment variable `VHS_NO_SANDBOX=true`.
+its containers, you can set environment variable ``VHS_NO_SANDBOX=true``.

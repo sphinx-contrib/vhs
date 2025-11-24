@@ -25,7 +25,7 @@ default_role = "py:obj"
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
     "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
-    "vhs": ("https://taminomara.github.io/python-vhs/", None),
+    "vhs": ("https://python-vhs.readthedocs.io/en/stable/", None),
 }
 autodoc_member_order = "bysource"
 nitpick_ignore_regex = [(r"py:class", r".*\.T")]
