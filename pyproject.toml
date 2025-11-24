@@ -42,7 +42,7 @@ test = [
 lint = [
     "black==25.11.0",
     "isort==7.0.0",
-    "pre-commit==4.4.0",
+    "pre-commit==4.5.0",
 ]
 doc = [
     "sybil==9.2.0",
