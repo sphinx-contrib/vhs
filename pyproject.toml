@@ -22,7 +22,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "sphinx>=8.0,<9.0",
+    "sphinx>=8.0,<10.0",
     "vhs>=1.0.0,<2.0",
 ]
 
