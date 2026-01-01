@@ -17,6 +17,7 @@ import sphinx.environment
 import sphinx.errors
 import sphinx.util.parallel
 import vhs
+from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives.images import Figure
 from sphinx.transforms import SphinxTransform
 from sphinx.util import logging
@@ -51,6 +52,11 @@ def _get_used_files(
 
 
 class VhsDirective(SphinxDirective, Figure):
+    option_spec = {
+        **Figure.option_spec,  # type: ignore
+        "format": lambda x: directives.choice(x, ["gif", "svg"]),
+    }
+
     def run(self):
         lines = self._get_tape_contents_inlined()
         tape = "\n".join(lines)
@@ -66,8 +72,9 @@ class VhsDirective(SphinxDirective, Figure):
         )
         dest_dir.mkdir(parents=True, exist_ok=True)
         dest_tape = dest_dir / ("vhs.tape")
-        dest_render = dest_dir / ("vhs.gif")
-        dest_file = dest_dir / (filename + ".gif")
+        format = self.options.get("format") or self.env.config["vhs_format"] or "gif"
+        dest_render = dest_dir / (f"vhs.{format}")
+        dest_file = dest_dir / (filename + f".{format}")
 
         with dest_tape.open("w") as file:
             file.write(tape)
@@ -290,6 +297,7 @@ def generate_vhs(
                 install=app.config["vhs_auto_install"],
                 cache_path=app.config["vhs_auto_install_location"],
                 env=environ,
+                repo=app.config["vhs_repo"],
             )
         except vhs.VhsError as e:
             raise sphinx.errors.ExtensionError(str(e)) from e
@@ -401,6 +409,8 @@ def setup(app: sphinx.application.Sphinx):
     app.add_config_value(
         "vhs_cleanup_delay", timedelta(days=1), rebuild="env", types=timedelta
     )
+    app.add_config_value("vhs_repo", "charmbracelet/vhs", rebuild="env")
+    app.add_config_value("vhs_format", "gif", rebuild="env")
 
     app.add_directive("vhs", VhsDirective)
     app.add_directive("vhs-inline", InlineVhsDirective)

@@ -115,6 +115,20 @@ Usage
 .. _figure: https://docutils.sourceforge.io/docs/ref/rst/directives.html#figure
 
 
+Rendering SVGs
+--------------
+
+There's a `fork of VHS`__ that supports rendering SVGs instead of GIFs. To set it up,
+add the following to your ``conf.py``:
+
+__ https://github.com/agentstation/vhs/
+
+.. code-block:: python
+
+   vhs_repo = "agentstation/vhs"
+   vhs_format = "svg"
+
+
 Settings
 --------
 
@@ -174,6 +188,16 @@ Sphinx-VHS adds the following settings to ``conf.py``:
 
    Number of parallel jobs that will be used to render tapes in Read The Docs runners.
    Default is ``8``.
+
+.. py:data:: vhs_repo
+   :type: str
+
+   Repo
+
+.. py:data:: vhs_format
+   :type: str
+
+   Format for rendering tapes, default is ``"gif"``.
 
 
 FAQ

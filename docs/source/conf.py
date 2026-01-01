@@ -29,6 +29,8 @@ intersphinx_mapping = {
 }
 autodoc_member_order = "bysource"
 nitpick_ignore_regex = [(r"py:class", r".*\.T")]
+vhs_repo = "agentstation/vhs"
+vhs_format = "svg"
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
