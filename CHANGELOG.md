@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-01-01
+
+- Added support for rendering SVGs instead of GIFs via
+  [a fork that supports it](https://github.com/agentstation/vhs/releases).
+- Support for Sphinx 9.
+
 ## [1.3.0] - 2025-11-25
 
 - Add `vhs_n_jobs` and `vhs_n_jobs_read_the_docs` config values.
