@@ -1,3 +1,5 @@
+Set Framerate 24
+
 Sleep 1.5s
 Type `echo "Hello, `
 Sleep 250ms

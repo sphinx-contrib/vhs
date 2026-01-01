@@ -103,6 +103,7 @@ Usage
 
       .. vhs-inline::
 
+         Set Framerate 24
          Type "pwd"
          Sleep 500ms
          Enter
