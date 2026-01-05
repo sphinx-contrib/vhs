@@ -35,8 +35,8 @@ dev = [
 ]
 test = [
     "pyright==1.1.407",
-    "pytest==9.0.1",
-    "sybil==9.2.0",
+    "pytest==9.0.2",
+    "sybil==9.3.0",
     "html5lib~=1.1",
 ]
 lint = [
@@ -45,8 +45,8 @@ lint = [
     "pre-commit==4.5.0",
 ]
 doc = [
-    "sybil==9.2.0",
-    "furo==2025.9.25",
+    "sybil==9.3.0",
+    "furo==2025.12.19",
     "sphinx_design==0.6.1",
     "sphinx-autobuild==2025.8.25"
 ]
