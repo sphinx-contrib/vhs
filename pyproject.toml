@@ -47,7 +47,7 @@ lint = [
 doc = [
     "sybil==9.2.0",
     "furo==2025.9.25",
-    "sphinx_design==0.6.1",
+    "sphinx_design==0.7.0",
     "sphinx-autobuild==2025.8.25"
 ]
 
