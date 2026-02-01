@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.5.1] - 2026-02-01
+
+- Dropped dependency on [sphinxcontrib/video].
+
 ## [1.5.0] - 2026-02-01
 
 - Added support for rendering mp4 and webm videos.
@@ -79,4 +83,6 @@
 [1.3.0]: https://github.com/sphinx-contrib/vhs/compare/v1.2.0...v1.3.0
 [1.4.0]: https://github.com/sphinx-contrib/vhs/compare/v1.3.0...v1.4.0
 [1.5.0]: https://github.com/sphinx-contrib/vhs/compare/v1.4.0...v1.5.0
-[unreleased]: https://github.com/sphinx-contrib/vhs/compare/v1.5.0...HEAD
+[1.5.1]: https://github.com/sphinx-contrib/vhs/compare/v1.5.0...v1.5.1
+[sphinxcontrib/video]: https://github.com/sphinx-contrib/video/
+[unreleased]: https://github.com/sphinx-contrib/vhs/compare/v1.5.1...HEAD

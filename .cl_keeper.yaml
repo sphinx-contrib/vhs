@@ -1,0 +1,5 @@
+# yaml-language-server: $schema=https://cl-keeper.readthedocs.io/en/latest/schema.json
+version_format: python-semver
+format_wrapping: 80
+severity:
+  ReleaseHasNoChangeCategories: none
