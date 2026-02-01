@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Added support for rendering mp4 and webm videos.
+
 ## [1.4.0] - 2026-01-01
 
 - Added support for rendering SVGs instead of GIFs via

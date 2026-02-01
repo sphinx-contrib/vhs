@@ -11,13 +11,14 @@ def parse(fname: pathlib.Path) -> xml.etree.ElementTree.Element:
         return HTMLParser(namespaceHTMLElements=False).parse(fp)
 
 
-@pytest.mark.sphinx("html", testroot="basics")
+@pytest.mark.sphinx("html", testroot="basics", parallel=6)
 def test_app(app: util.SphinxTestApp):
     app.build()
 
     outdir = pathlib.Path(app.outdir)
 
     assert len(list((outdir / "_images").glob("vhs-*.gif"))) == 5
+    assert len(list((outdir / "_images").glob("vhs-*.mp4"))) == 1
 
     etree = parse(outdir / "index.html")
 
@@ -25,6 +26,9 @@ def test_app(app: util.SphinxTestApp):
     assert len(a_tape_gifs) == 3
     a_tape_srcs = {e.attrib["src"] for e in a_tape_gifs}
     assert a_tape_srcs == {"_images/vhs-a.gif", "_images/vhs-inline.gif"}
+
+    a_tape_vids = etree.findall(".//video")
+    assert len(a_tape_vids) == 1
 
     b_tape_gifs = etree.findall(".//img[@alt='b.tape']")
     assert len(b_tape_gifs) == 3

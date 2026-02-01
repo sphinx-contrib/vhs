@@ -10,6 +10,10 @@ a.tape
 .. vhs:: _tapes/a.tape
    :alt: a.tape
 
+.. vhs:: _tapes/a.tape
+   :alt: a.tape
+   :format: mp4
+
 .. vhs-inline::
    :alt: a.tape
 

@@ -116,6 +116,8 @@ Usage
 .. _figure: https://docutils.sourceforge.io/docs/ref/rst/directives.html#figure
 
 
+.. _rendering-svg:
+
 Rendering SVGs
 --------------
 
@@ -193,12 +195,13 @@ Sphinx-VHS adds the following settings to ``conf.py``:
 .. py:data:: vhs_repo
    :type: str
 
-   Repo
+   Repo to download VHS from.
 
 .. py:data:: vhs_format
    :type: str
 
-   Format for rendering tapes, default is ``"gif"``.
+   Format for rendering tapes, default is ``"gif"``. Can be ``"gif"``, ``"mp4"``,
+   ``"webm"``, or ``"svg"`` (see :ref:`rendering-svg`).
 
 
 FAQ

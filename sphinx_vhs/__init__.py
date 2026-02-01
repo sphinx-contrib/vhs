@@ -13,6 +13,7 @@ from multiprocessing.pool import ThreadPool
 import docutils.nodes
 import docutils.statemachine
 import sphinx.application
+import sphinx.config
 import sphinx.environment
 import sphinx.errors
 import sphinx.util.parallel
@@ -23,6 +24,7 @@ from sphinx.transforms import SphinxTransform
 from sphinx.util import logging
 from sphinx.util.console import colorize, term_width_line
 from sphinx.util.docutils import SphinxDirective
+from sphinxcontrib.video import video_node
 
 from sphinx_vhs._version import *
 
@@ -54,7 +56,7 @@ def _get_used_files(
 class VhsDirective(SphinxDirective, Figure):
     option_spec = {
         **Figure.option_spec,  # type: ignore
-        "format": lambda x: directives.choice(x, ["gif", "svg"]),
+        "format": lambda x: directives.choice(x, ["gif", "svg", "webm", "mp4"]),
     }
 
     def run(self):
@@ -281,10 +283,17 @@ def generate_vhs(
     used_files = _get_used_files(env)
 
     outdated_files = [
-        data[0] for data in used_files.values() if not data[0].render_file.exists()
+        entry
+        for entries in used_files.values()
+        for entry in entries
+        if not entry.render_file.exists()
     ]
 
-    if outdated_files:
+    to_render = {
+        (entry.tape_file, entry.render_file): entry for entry in outdated_files
+    }
+
+    if to_render:
         environ = os.environ.copy()
         if "READTHEDOCS" in environ:
             environ["VHS_NO_SANDBOX"] = "true"
@@ -302,7 +311,7 @@ def generate_vhs(
         except vhs.VhsError as e:
             raise sphinx.errors.ExtensionError(str(e)) from e
 
-        in_progress = collections.Counter(p.origname for p in outdated_files)
+        in_progress = collections.Counter(p.origname for p in to_render.values())
 
         def on_tape_done(origname: str | None):
             if app.verbosity:
@@ -315,7 +324,7 @@ def generate_vhs(
                 else:
                     in_progress.pop(origname, None)
 
-            total = len(outdated_files)
+            total = len(to_render)
             left = in_progress.total()
             done = total - left
             tape = f" {sorted(in_progress)[0]}" if in_progress else ""
@@ -344,7 +353,7 @@ def generate_vhs(
         else:
             _logger.info(
                 "rendering terminal GIFs: %s files, parallel=%s",
-                len(outdated_files),
+                len(to_render),
                 parallel,
                 type="vhs",
             )
@@ -362,7 +371,7 @@ def generate_vhs(
             on_tape_done(arg.origname)
 
         with ThreadPool(parallel) as tasks:
-            for _ in tasks.imap_unordered(worker, outdated_files):
+            for _ in tasks.imap_unordered(worker, to_render.values()):
                 pass
 
         if not app.verbosity:
@@ -390,27 +399,70 @@ class ProcessVhsNodes(SphinxTransform):
 
     def apply(self, **kwargs: _t.Any):
         for image in self.document.findall(docutils.nodes.image):
+            print(image.parent.parent)
             uri = image["uri"]
             if uri.startswith("data:vhs-tape;"):
                 uri = uri[len("data:vhs-tape;") :]
-                image["uri"] = uri
-                image["candidates"] = {"*": uri, "image/gif": uri}
-                self.env.images.add_file(self.env.docname, image["uri"])
+                ext = pathlib.Path(uri).suffix.lstrip(".")
+                if ext in ["mp4", "webm"]:
+                    image.parent["ids"].extend(image["ids"])
+                    image.parent["names"].extend(image["names"])
+                    image.replace_self(
+                        video_node(
+                            sources=[(uri, f"video/{ext}", False)],
+                            alt=image.get("alt", ""),
+                            autoplay=True,
+                            controls=False,
+                            controlslist="",
+                            height=image.get("height", ""),
+                            loop=True,
+                            muted=True,
+                            poster="",
+                            preload="auto",
+                            width=image.get("width", ""),
+                            klass="",
+                            playsinline=True,
+                            align="default",
+                            caption="",
+                            figwidth="",
+                        )
+                    )
+                else:
+                    image["uri"] = uri
+                    image["candidates"] = {"*": uri, f"image/{ext}": uri}
+                self.env.images.add_file(self.env.docname, uri)
 
 
 def setup(app: sphinx.application.Sphinx):
-    app.add_config_value("vhs_min_version", "0.5.0", rebuild="env")
-    app.add_config_value("vhs_max_version", "2.0.0", rebuild="env")
-    app.add_config_value("vhs_auto_install_location", None, rebuild="")
-    app.add_config_value("vhs_auto_install", True, rebuild="")
-    app.add_config_value("vhs_cwd", None, rebuild="env")
+    app.setup_extension("sphinxcontrib.video")
+
+    app.add_config_value("vhs_min_version", "0.5.0", rebuild="env", types=str)
+    app.add_config_value("vhs_max_version", "2.0.0", rebuild="env", types=str)
+    app.add_config_value(
+        "vhs_auto_install_location",
+        None,
+        rebuild="",
+        types=(str, pathlib.Path, pathlib.PosixPath, pathlib.WindowsPath),
+    )
+    app.add_config_value("vhs_auto_install", True, rebuild="", types=bool)
+    app.add_config_value(
+        "vhs_cwd",
+        None,
+        rebuild="env",
+        types=(str, pathlib.Path, pathlib.PosixPath, pathlib.WindowsPath),
+    )
     app.add_config_value("vhs_n_jobs", None, rebuild="", types=int)
     app.add_config_value("vhs_n_jobs_read_the_docs", 8, rebuild="", types=int)
     app.add_config_value(
         "vhs_cleanup_delay", timedelta(days=1), rebuild="env", types=timedelta
     )
-    app.add_config_value("vhs_repo", "charmbracelet/vhs", rebuild="env")
-    app.add_config_value("vhs_format", "gif", rebuild="env")
+    app.add_config_value("vhs_repo", "charmbracelet/vhs", rebuild="env", types=str)
+    app.add_config_value(
+        "vhs_format",
+        "gif",
+        rebuild="env",
+        types=sphinx.config.ENUM("gif", "svg", "webm", "mp4"),
+    )
 
     app.add_directive("vhs", VhsDirective)
     app.add_directive("vhs-inline", InlineVhsDirective)
