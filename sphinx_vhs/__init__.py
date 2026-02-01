@@ -6,11 +6,11 @@ import pathlib
 import re
 import shutil
 import typing as _t
+import urllib.parse
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from multiprocessing.pool import ThreadPool
 
-import urllib.parse
 import docutils.nodes
 import docutils.statemachine
 import sphinx.application
@@ -428,7 +428,9 @@ class video_node(docutils.nodes.General, docutils.nodes.Element):
     pass
 
 
-def visit_video_node_html(translator: sphinx.writers.html.HTMLTranslator, node: video_node) -> None:
+def visit_video_node_html(
+    translator: sphinx.writers.html.HTMLTranslator, node: video_node
+) -> None:
     # Based on sphinxcontrib-video, Apache License 2.0, by Raphael Massabot
 
     html = f"<video "
@@ -438,7 +440,7 @@ def visit_video_node_html(translator: sphinx.writers.html.HTMLTranslator, node: 
         html += f' width="{width}"'
     if height := node.get("height"):
         html += f' height="{height}"'
-    html += ' '.join(node.get("attrs", []))
+    html += " ".join(node.get("attrs", []))
     html += ">"
 
     builder = translator.builder
@@ -461,8 +463,7 @@ def depart_video_node_html(translator, node: video_node) -> None:
 
 def visit_video_node_unsupported(translator, node: video_node) -> None:
     _logger.warning(
-        "video %s: unsupported output format (node skipped)",
-        node['sources'][0][0]
+        "video %s: unsupported output format (node skipped)", node["sources"][0][0]
     )
     raise docutils.nodes.SkipNode
 
