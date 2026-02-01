@@ -16,6 +16,8 @@ and rendering them during sphinx build.
     :caption: Links
 
     GitHub <https://github.com/sphinx-contrib/vhs/>
+    Issues <https://github.com/sphinx-contrib/vhs/issues>
+    Changelog <https://github.com/sphinx-contrib/vhs/blob/main/CHANGELOG.md>
 
 
 Quickstart

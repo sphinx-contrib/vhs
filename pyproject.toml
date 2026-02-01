@@ -24,7 +24,6 @@ classifiers = [
 dependencies = [
     "sphinx>=8.0,<10.0",
     "vhs>=1.1.0,<2.0",
-    "sphinxcontrib-video>=0.4.2,<0.5",
 ]
 
 [dependency-groups]

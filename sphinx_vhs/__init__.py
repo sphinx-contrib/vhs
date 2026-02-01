@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from multiprocessing.pool import ThreadPool
 
+import urllib.parse
 import docutils.nodes
 import docutils.statemachine
 import sphinx.application
@@ -17,6 +18,8 @@ import sphinx.config
 import sphinx.environment
 import sphinx.errors
 import sphinx.util.parallel
+import sphinx.writers
+import sphinx.writers.html
 import vhs
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives.images import Figure
@@ -24,7 +27,6 @@ from sphinx.transforms import SphinxTransform
 from sphinx.util import logging
 from sphinx.util.console import colorize, term_width_line
 from sphinx.util.docutils import SphinxDirective
-from sphinxcontrib.video import video_node
 
 from sphinx_vhs._version import *
 
@@ -399,42 +401,82 @@ class ProcessVhsNodes(SphinxTransform):
 
     def apply(self, **kwargs: _t.Any):
         for image in self.document.findall(docutils.nodes.image):
-            print(image.parent.parent)
             uri = image["uri"]
             if uri.startswith("data:vhs-tape;"):
                 uri = uri[len("data:vhs-tape;") :]
                 ext = pathlib.Path(uri).suffix.lstrip(".")
                 if ext in ["mp4", "webm"]:
-                    image.parent["ids"].extend(image["ids"])
-                    image.parent["names"].extend(image["names"])
                     image.replace_self(
                         video_node(
-                            sources=[(uri, f"video/{ext}", False)],
+                            ids=image["ids"],
+                            sources=[(uri, f"video/{ext}")],
                             alt=image.get("alt", ""),
-                            autoplay=True,
-                            controls=False,
-                            controlslist="",
+                            attrs=["autoplay", "loop", "muted", "playsinline"],
                             height=image.get("height", ""),
-                            loop=True,
-                            muted=True,
-                            poster="",
-                            preload="auto",
                             width=image.get("width", ""),
-                            klass="",
-                            playsinline=True,
-                            align="default",
-                            caption="",
-                            figwidth="",
                         )
                     )
+                    self.env.images.add_file(self.env.docname, uri)
+                    self.app.builder.images[uri] = self.env.images[uri][1]
                 else:
                     image["uri"] = uri
                     image["candidates"] = {"*": uri, f"image/{ext}": uri}
-                self.env.images.add_file(self.env.docname, uri)
+                    self.env.images.add_file(self.env.docname, uri)
+
+
+class video_node(docutils.nodes.General, docutils.nodes.Element):
+    pass
+
+
+def visit_video_node_html(translator: sphinx.writers.html.HTMLTranslator, node: video_node) -> None:
+    # Based on sphinxcontrib-video, Apache License 2.0, by Raphael Massabot
+
+    html = f"<video "
+    if node["ids"]:
+        html += f' id="{node["ids"][0]}"'
+    if width := node.get("width"):
+        html += f' width="{width}"'
+    if height := node.get("height"):
+        html += f' height="{height}"'
+    html += ' '.join(node.get("attrs", []))
+    html += ">"
+
+    builder = translator.builder
+    for src, mimetype in node["sources"]:
+        if src in builder.images:
+            src = pathlib.Path(
+                builder.imgpath, urllib.parse.quote(builder.images[src])
+            ).as_posix()
+        html += f'<source src="{src}" type="{mimetype}">'
+
+    html += node["alt"]
+
+    translator.body.append(html)
+
+
+def depart_video_node_html(translator, node: video_node) -> None:
+    # Based on sphinxcontrib-video, Apache License 2.0, by Raphael Massabot
+    translator.body.append(f"</video>")
+
+
+def visit_video_node_unsupported(translator, node: video_node) -> None:
+    _logger.warning(
+        "video %s: unsupported output format (node skipped)",
+        node['sources'][0][0]
+    )
+    raise docutils.nodes.SkipNode
 
 
 def setup(app: sphinx.application.Sphinx):
-    app.setup_extension("sphinxcontrib.video")
+    app.add_node(
+        video_node,
+        html=(visit_video_node_html, depart_video_node_html),
+        epub=(visit_video_node_unsupported, None),
+        latex=(visit_video_node_unsupported, None),
+        man=(visit_video_node_unsupported, None),
+        texinfo=(visit_video_node_unsupported, None),
+        text=(visit_video_node_unsupported, None),
+    )
 
     app.add_config_value("vhs_min_version", "0.5.0", rebuild="env", types=str)
     app.add_config_value("vhs_max_version", "2.0.0", rebuild="env", types=str)
