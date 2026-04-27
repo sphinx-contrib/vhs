@@ -40,9 +40,9 @@ test = [
     "html5lib~=1.1",
 ]
 lint = [
-    "black==26.1.0",
+    "black==26.3.1",
     "isort==8.0.1",
-    "pre-commit==4.5.1",
+    "pre-commit==4.6.0",
 ]
 doc = [
     "sybil==9.3.0",
