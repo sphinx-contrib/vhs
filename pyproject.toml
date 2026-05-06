@@ -1,18 +1,18 @@
 [project]
 name = "sphinx-vhs"
-authors = [{name = "Tamika Nomara", email = "taminomara@gmail.com"}]
+authors = [{ name = "Tamika Nomara", email = "taminomara@gmail.com" }]
 description = "Sphinx plugin that generates terminal GIFs using charm's VHS"
 dynamic = ["version"]
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Framework :: Sphinx",
     "Framework :: Sphinx :: Extension",
     "Topic :: Software Development :: Documentation",
@@ -28,27 +28,32 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "pytest-cov==7.0.0",
-    {include-group = "test"},
-    {include-group = "lint"},
-    {include-group = "doc"},
+    { include-group = "ci" },
+    { include-group = "doc" },
+    { include-group = "lint" },
+    { include-group = "test" },
 ]
 test = [
+    "html5lib~=1.1",
     "pyright==1.1.408",
+    "pytest-cov==7.0.0",
     "pytest==9.0.2",
     "sybil==9.3.0",
-    "html5lib~=1.1",
-]
-lint = [
-    "black==26.1.0",
-    "isort==8.0.1",
-    "pre-commit==4.5.1",
 ]
 doc = [
-    "sybil==9.3.0",
     "furo==2025.12.19",
+    "sphinx==9.1.0",
+    "sphinx-autobuild==2025.8.25",
     "sphinx_design==0.7.0",
-    "sphinx-autobuild==2025.8.25"
+]
+lint = [
+    "prek==0.3.8",
+    "ruff==0.15.9",
+]
+ci = [
+    "pytest-cov==7.0.0",
+    "tox==4.34.1",
+    "tox-uv==1.29.0",
 ]
 
 [project.urls]
@@ -63,16 +68,14 @@ requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2", "wheel>=0.40"]
 [tool.setuptools_scm]
 write_to = "sphinx_vhs/_version.py"
 
-[tool.pytest.ini_options]
-minversion = "7.0"
-addopts = ["--strict-markers", "-p no:doctest"]
-testpaths = ["test", "sphinx_vhs", "docs"]
-
 [tool.pyright]
-include = ["sphinx_syntax"]
-exclude = ["**/__pycache__"]
+include = ["sphinx_vhs"]
+exclude = [
+    "**/__pycache__",
+    "sphinx_vhs/_version.py",
+]
 typeCheckingMode = "strict"
-pythonVersion = "3.12"
+pythonVersion = "3.14"
 pythonPlatform = "All"
 
 reportMissingParameterType = "none"
@@ -83,8 +86,53 @@ reportUnknownArgumentType = "none"
 reportUnknownLambdaType = "none"
 reportUnnecessaryIsInstance = "none"
 reportUnnecessaryTypeIgnoreComment = "warning"
+reportPrivateUsage = "none"
+reportUnusedFunction = "none"
+reportConstantRedefinition = "none"
+reportRedeclaration = "none"
+reportDeprecated = "none"
+deprecateTypingAliases = true
 
-[tool.isort]
-profile = "black"
-skip_gitignore = true
-known_third_party = ["vhs"]
+[tool.ruff]
+target-version = "py312"
+
+[tool.ruff.lint]
+extend-select = ["I", "INP", "T20", "PT", "RET", "SIM", "SLOT", "RUF022"]
+ignore = [
+    "E402",   # Module level import not at top of file
+    "E722",   # Do not use bare `except`
+    "E741",   # Ambiguous variable name
+    "E731",   # Do not assign a `lambda` expression, use a `def`
+    "PT015",  # Assertion is always `False`
+    "PT011",  # Too broad error type
+    "PT012",  # `pytest.raises()` block should contain a single simple statement
+    "PT017",  # Found assertion on exception `e` in `except` block
+    "RET505", # Unnecessary `else` after `return` statement
+    "RET506", # Unnecessary `else` after `raise` statement
+    "RET507", # Unnecessary `else` after `continue` statement
+    "RET508", # Unnecessary `else` after `break` statement
+    "SIM103", # Return the negated condition directly
+    "SIM105", # Use `contextlib.suppress` instead of `try`-`except`-`pass`
+    "SIM108", # Use ternary operator instead of `if`-`else`-block
+    "SIM114", # Combine `if` branches using logical `or` operator
+    "SIM118", # Use `key in dict` instead of `key in dict.keys()`
+]
+extend-safe-fixes = [
+    "RUF022", # Sort `__all__`.
+    "PT006",  # Rewrite arguments for `pytest.mark.parametrize`.
+]
+future-annotations = true
+
+[tool.ruff.lint.per-file-ignores]
+"test/**/*" = ["T20", "I002", "SIM102", "SIM117"]
+"test/roots/**/*" = ["T20", "I002", "INP001"]
+"docs/**/*" = ["T20", "I002", "INP001"]
+
+[tool.ruff.lint.isort]
+required-imports = ["from __future__ import annotations"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.uv]
+default-groups = ["dev"]
