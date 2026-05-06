@@ -7,16 +7,34 @@ updates:
     groups:
       dev:
         patterns:
-        - "furo"
-        - "html5lib"
-        - "pyright"
-        - "pytest-cov"
-        - "pytest"
-        - "sphinx_design"
-        - "sybil"
-        - "sphinx-autobuild"
+          - "furo"
+          - "html5lib"
+          - "pyright"
+          - "pytest-cov"
+          - "pytest"
+          - "sphinx"
+          - "sphinx-autobuild"
+          - "sphinx_design"
+          - "sybil"
+          - "tox"
+          - "tox-uv"
       style:
         patterns:
-        - "black"
-        - "isort"
-        - "pre-commit"
+          - "prek"
+          - "ruff"
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      pre-commit:
+        patterns:
+          - "*"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      gh-actions:
+        patterns:
+          - "*"
