@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [1.5.2] - 2026-05-12
+
+- Bumped dependencies.
+- Hardened build and publishing process to lower risk of supply-chain attacks.
+
 ## [1.5.1] - 2026-02-01
 
 - Dropped dependency on [sphinxcontrib/video].
@@ -84,5 +89,6 @@
 [1.4.0]: https://github.com/sphinx-contrib/vhs/compare/v1.3.0...v1.4.0
 [1.5.0]: https://github.com/sphinx-contrib/vhs/compare/v1.4.0...v1.5.0
 [1.5.1]: https://github.com/sphinx-contrib/vhs/compare/v1.5.0...v1.5.1
+[1.5.2]: https://github.com/sphinx-contrib/vhs/compare/v1.5.1...v1.5.2
 [sphinxcontrib/video]: https://github.com/sphinx-contrib/video/
-[unreleased]: https://github.com/sphinx-contrib/vhs/compare/v1.5.1...HEAD
+[unreleased]: https://github.com/sphinx-contrib/vhs/compare/v1.5.2...HEAD
