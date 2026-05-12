@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import base64
 import collections
 import hashlib
@@ -28,11 +30,9 @@ from sphinx.util import logging
 from sphinx.util.console import colorize, term_width_line
 from sphinx.util.docutils import SphinxDirective
 
-from sphinx_vhs._version import *
+from sphinx_vhs._version import *  # noqa: F403
 
-vhs._logger = _logger = logging.getLogger(  # pyright: ignore[reportPrivateUsage]
-    "sphinx-vhs"
-)
+vhs._logger = _logger = logging.getLogger("sphinx-vhs")
 
 
 @dataclass(unsafe_hash=True)
@@ -334,7 +334,7 @@ def generate_vhs(
                 tape += f" +{left - 1} more"
             _logger.info(
                 term_width_line(
-                    f"{colorize("bold", "rendering terminal GIFs...")} [{done}/{total}]{colorize("teal", tape)}"
+                    f"{colorize('bold', 'rendering terminal GIFs...')} [{done}/{total}]{colorize('teal', tape)}"
                 ),
                 nonl=True,
             )
@@ -433,7 +433,7 @@ def visit_video_node_html(
 ) -> None:
     # Based on sphinxcontrib-video, Apache License 2.0, by Raphael Massabot
 
-    html = f"<video "
+    html = "<video "
     if node["ids"]:
         html += f' id="{node["ids"][0]}"'
     if width := node.get("width"):
@@ -458,7 +458,7 @@ def visit_video_node_html(
 
 def depart_video_node_html(translator, node: video_node) -> None:
     # Based on sphinxcontrib-video, Apache License 2.0, by Raphael Massabot
-    translator.body.append(f"</video>")
+    translator.body.append("</video>")
 
 
 def visit_video_node_unsupported(translator, node: video_node) -> None:
@@ -516,7 +516,7 @@ def setup(app: sphinx.application.Sphinx):
     app.add_post_transform(ProcessVhsNodes)
 
     return {
-        "version": __version__,
+        "version": __version__,  # noqa: F405
         "parallel_read_safe": True,
         "parallel_write_safe": True,
     }
