@@ -47,8 +47,8 @@ doc = [
     "sphinx_design==0.7.0",
 ]
 lint = [
-    "prek==0.4.1",
-    "ruff==0.15.14",
+    "prek==0.4.5",
+    "ruff==0.15.18",
 ]
 ci = [
     "pytest-cov==7.1.0",
